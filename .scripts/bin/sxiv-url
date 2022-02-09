@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+
+SXIV_PATH='/usr/bin/sxiv'
+
+INPUT_ARGS=("$@")
+NEW_INPUT_ARGS=("$SXIV_PATH")
+
+for arg in "${INPUT_ARGS[@]}";
+  do
+    if [[ -f "$arg" ]]; then
+      NEW_INPUT_ARGS+=("$arg")
+    else
+      tmp="$(mktemp --suffix="-sxiv")"
+      if curl "$arg" --output "$tmp" 2> /dev/null; then
+        NEW_INPUT_ARGS+=("$tmp")
+      else
+        echo "sxiv: $arg: No such file or directory"
+        echo "sxiv: $arg: Failed to curl"
+      fi
+    fi
+  done
+
+exec "${NEW_INPUT_ARGS[@]}"

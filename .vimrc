@@ -3,10 +3,17 @@ set encoding=utf-8
 set background=dark
 
 syntax on
-filetype plugin indent on
+filetype on                     " Enable file type detection
+filetype indent on              " Enable file type-specific indenting
+filetype plugin on              " Enable file type-specific plugins
 filetype plugin on
+filetype plugin indent on
 
-set number                      " Numbering the lines
+silent! set cryptmethod=blowfish2
+
+" set viminfo+=n~/.vim/viminfo
+" set viminfo='50,<1000,s100,:0,n~/vim/viminfo
+
 set textwidth=80                " Set text width to 80
 set numberwidth=4               " Set number width to 4
 set incsearch                   " Find the next match as we type the search
@@ -19,10 +26,12 @@ set autoindent
 set smartindent
 set tabstop=4
 set shiftwidth=4
+
 set copyindent                  " copy the previous indentation on auto indenting
 set hidden
 set nowrap
 set fileformats=unix,dos,mac   " support all three, in this order
+
 set foldmethod=manual
 set foldlevel=7
 set tags=tags;
@@ -31,8 +40,8 @@ set expandtab
 set smarttab
 set backspace=indent,eol,start
 set magic                       " Does some magic ;-) Newline characters...
-set number                      " Enable line numbering
 set ttyfast                     " The current terminal is a fast terminal so
+
 set laststatus=2
 set history=72		            " keep 72 lines of command line history
 set undofile                    " Save undo(s) after file closes
@@ -40,27 +49,29 @@ set undodir=$HOME/.vim/undo     " where to save undo histories
 set undolevels=1000             " How many undo(s)
 set undoreload=10000            " number of lines to save for undo
 set directory=~/.vim/swap/
+
 set nospell
+
 set wildignore=*.o,*~,*.pyc,*.so " ignore compiled files
+
 set noerrorbells		         " No annoying sound on errors
 set novisualbell
-set splitright                  " Puts new vertical split windows to the right of the current
-set splitbelow                  " Puts new split windows to the bottom of the current
+
+set ls=2
 set nu
 set ruler                       " show the cursor position all the time
 set title
 set showcmd                     " display incomplete commands
+
 set autowrite                   " Automatically :w before running commands
 set showmode                    " show current mode down the bottom
 set autoread
 set wildmode=longest,list,full
 set wildmenu
 set t_Co=256
+set clipboard=
 
-filetype on                     " Enable file type detection
-filetype indent on              " Enable file type-specific indenting
-filetype plugin on              " Enable file type-specific plugins
-silent! set cryptmethod=blowfish2
+"set cursorline
 
 " close braces automatically
 "inoremap " ""<left>
@@ -77,10 +88,10 @@ map <C-right> :tabn<cr>
 
 " By pressing ctrl+r in the visual mode you will be prompted to enter text to replace with.
 vnoremap <C-r> "hy:%s/<C-r>h//g<left><left>
-inoremap <tab> <c-r>=Smart_TabComplete()<CR>
 
 " Automatically deletes all tralling whitespace on save.
 autocmd BufWritePre * %s/\s\+$//e
+autocmd FileType json syntax match Comment +\/\/.\+$+
 
 " Clear highlighting on escape in normal mode
 nnoremap <esc> :noh<return><esc>
@@ -96,30 +107,8 @@ nnoremap <C-H> <C-W><C-H>
 set splitbelow
 set splitright
 
-
-" Auto completion function
-function! Smart_TabComplete()
-  let line = getline('.')                         " current line
-
-  let substr = strpart(line, -1, col('.'))        " from the start of the current
-                                                  " line to one character on
-                                                  " the cursor
-  let substr = matchstr(substr, "[^ \t]*$")       " word till cursor
-  if (strlen(substr)==0)                          " nothing to match on empty string
-    return "\<tab>"
-  endif
-  let has_period = match(substr, '\.') != -1      " position of period, if any
-  let has_slash = match(substr, '\/') != -1       " position of slash, if any
-  if (!has_period && !has_slash)
-    return "\<C-X>\<C-P>"                         " existing text matching
-  elseif ( has_slash )
-    return "\<C-X>\<C-F>"                         " file matching
-  else
-    return "\<C-X>\<C-O>"                         " plugin matching
-  endif
-endfunction
-
 nmap <leader>ne :NERDTreeToggle<cr>
+nmap <leader>dt :ALEDetail<cr>
 
 let python_highlight_all = 1
 
@@ -141,20 +130,32 @@ au FileType python map <buffer> <leader>C ?class
 au FileType python map <buffer> <leader>D ?def
 
 
+
 " Here is my plugins
-call plug#begin('~/.vim/plugged')
-Plug 'https://github.com/RRethy/vim-illuminate'
-Plug 'https://github.com/scrooloose/nerdtree'
+call plug#begin()
+Plug 'RRethy/vim-illuminate'
+Plug 'scrooloose/nerdtree'
 Plug 'Xuyuanp/nerdtree-git-plugin'
-Plug 'scrooloose/nerdcommenter'
 Plug 'vim-airline/vim-airline-themes'
+Plug 'dense-analysis/ale'
+"Plug 'neoclide/coc.nvim'
+
+Plug 'vim-airline/vim-airline'
+Plug 'preservim/nerdcommenter'
+
+Plug 'vim-airline/vim-airline-themes'
+Plug 'airblade/vim-gitgutter'
+
+
+" Plug 'neoclide/coc.nvim', {'branch': 'release'}
 call plug#end()
 
-"highlight pythonSpaceError ctermfg=0
-"highlight Normal ctermfg=white
-"highlight Comment ctermfg=green
+highlight pythonSpaceError ctermfg=0
+highlight Normal ctermfg=white
+highlight Comment ctermfg=green
 
-colorscheme gruvbox
+"  colorscheme gruvbox
+colorscheme wal
 
 let g:airline#extensions#tabline#enabled = 1
 let g:airline#extensions#tabline#fnamemod = ':t'
@@ -162,3 +163,48 @@ let g:airline_section_z = '%3p%% %#__accent_bold#%{g:airline_symbols.linenr}%4l%
 let g:NERDCustomDelimiters = { 'c': { 'left': '/* ','right': ' */' } }
 "let g:cpp_no_function_highlight = 1
 let c_no_curly_error=1
+
+
+" air-line
+"let g:airline_powerline_fonts = 1
+
+if !exists('g:airline_symbols')
+    let g:airline_symbols = {}
+endif
+
+" unicode symbols
+"let g:airline_left_sep = '»'
+"let g:airline_left_sep = '▶'
+"let g:airline_right_sep = '«'
+"let g:airline_right_sep = '◀'
+let g:airline_symbols.linenr = '␊'
+let g:airline_symbols.linenr = '␤'
+let g:airline_symbols.linenr = '¶'
+let g:airline_symbols.branch = '⎇'
+let g:airline_symbols.paste = 'ρ'
+let g:airline_symbols.paste = 'Þ'
+let g:airline_symbols.paste = '∥'
+let g:airline_symbols.whitespace = 'Ξ'
+
+" airline symbols
+"let g:airline_left_sep = ''
+"let g:airline_left_alt_sep = ''
+"let g:airline_right_sep = ''
+"let g:airline_right_alt_sep = ''
+let g:airline_symbols.branch = ''
+let g:airline_symbols.readonly = ''
+let g:airline_symbols.linenr = ''
+
+
+" Add spaces after comment delimiters by default
+let g:NERDSpaceDelims = 1
+
+" Use compact syntax for prettified multi-line comments
+let g:NERDCompactSexyComs = 1
+
+
+" Align line-wise comment delimiters flush left instead of following code indentation
+let g:NERDDefaultAlign = 'left'
+
+" autocmd BufWinEnter * if getcmdwintype() == '' | silent NERDTreeMirror | endif
+

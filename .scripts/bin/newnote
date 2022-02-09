@@ -1,0 +1,35 @@
+#!/bin/sh
+NOTES_PATH=~/Documents/notes
+DATE=$(date +%F)
+TIME=$(date +%T)
+
+# i want to write in other language but the terminal keeps screaming at me
+EDITOR=emacs
+
+
+if [ $# -eq 0 ]
+  then
+    echo "Usage: newnote [name] [title <optional>]"
+    exit 1
+fi
+
+
+NAME="$1"
+
+# create a txt file with
+# the following format
+# DAY/MONTH/YEAR-{TITLE}.txt
+
+NOTE="${NOTES_PATH}/${DATE}_${NAME}.txt"
+
+touch ${NOTE}
+
+if [ $# -eq 2 ]
+  then
+    echo "# $2">>${NOTE}
+fi
+
+echo "${DATE} / ${TIME}">>${NOTE}
+
+
+exec ${EDITOR} ${NOTE}
