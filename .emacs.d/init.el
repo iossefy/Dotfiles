@@ -36,7 +36,16 @@
 ;; Enable `relative` line numbers
 (column-number-mode)
 (global-display-line-numbers-mode)
-(setq display-line-numbers-type 'relative)
+;; (setq display-line-numbers-type 'relative)
+;; Use relative numbers only in GUI
+;; relative numbers cause unpleasant flickering in terminal emacs.
+(if (display-graphic-p)
+	(progn
+	  (setq display-line-numbers-type 'relative)))
+
+
+
+
 ;; disable line numbers in these modes
 (dolist (mode '(org-mode-hook
 				term-mode-hook
@@ -381,20 +390,9 @@
         (switch-to-buffer buffer)
         (get-buffer-window buffer 0)))
 
+
+(setq comment-auto-fill-only-comments t)
+(auto-fill-mode t)
+
 ;; remember at the first time when i said speeding up startup time?
 (setq gc-cons-threshold (* 2 1000 1000))
-
-
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(package-selected-packages
-   '(evil-nerd-commenter counsel company flycheck lsp-ivy lsp-ui lsp-mode go-mode rust-mode git-gutter magit general evil undo-tree which-key diminish use-package gruber-darker-theme solarized-theme)))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
