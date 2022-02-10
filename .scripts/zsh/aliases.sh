@@ -6,8 +6,12 @@ alias fgrep='fgrep --color=auto'
 alias egrep='egrep --color=auto'
 alias ls="ls --color=auto"
 alias rm="rm -i"
+
 alias vi="vim"
 alias vim="nvim"
+alias emx="emacs -nw"
+
+alias sxiv="sxiv -a"
 
 alias nse="ls /usr/share/nmap/scripts/|grep "
 
