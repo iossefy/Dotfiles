@@ -11,14 +11,14 @@
 
 ;; autosave
 (setq backup-by-copying t    ; don't clobber symlinks
-      backup-directory-alist '(("." . "~/.emacs.d/saves"))    ; don't litter my fs tree
-      delete-old-versions t
-      kept-new-versions 6
-      kept-old-versions 2
-      version-control t
+	  backup-directory-alist '(("." . "~/.emacs.d/saves"))    ; don't litter my fs tree
+	  delete-old-versions t
+	  kept-new-versions 6
+	  kept-old-versions 2
+	  version-control t
 	  create-lockfiles nil)
 (setq auto-save-file-name-transforms
-      `((".*" "~/.emacs.d/saves" t)))
+	  `((".*" "~/.emacs.d/saves" t)))
 
 
 ;; avoid silly errors
@@ -42,9 +42,6 @@
 (if (display-graphic-p)
 	(progn
 	  (setq display-line-numbers-type 'relative)))
-
-
-
 
 ;; disable line numbers in these modes
 (dolist (mode '(org-mode-hook
@@ -89,15 +86,14 @@
 ; region if you dont want to deal with it
 (set-face-attribute 'default nil
 					:font "Fira Code-9"
-					:weight 'medium)
-
+					:weight 'normal)
 
 ;
 ; keybindings emacs way
 ;
 (global-unset-key "\C-l")
 (defvar ctl-l-map (make-keymap)
-     "Keymap for local bindings and functions, prefixed by (^L)")
+  "Keymap for local bindings and functions, prefixed by (^L)")
 (define-key global-map "\C-l" 'Control-L-prefix)
 (fset 'Control-L-prefix ctl-l-map)
 
@@ -114,11 +110,11 @@
 ;; Initialize package sources
 (require 'package)
 
-
 (setq package-archives '(("melpa" . "https://melpa.org/packages/")
-                         ("melpa-stable" . "https://stable.melpa.org/packages/")
-                         ("org" . "https://orgmode.org/elpa/")
-                         ("elpa" . "https://elpa.gnu.org/packages/")))
+						 ("melpa-stable" . "https://stable.melpa.org/packages/")
+						 ("org" . "https://orgmode.org/elpa/")
+						 ("elpa" . "https://elpa.gnu.org/packages/")))
+
 
 (package-initialize)
 (unless package-archive-contents
@@ -142,26 +138,6 @@
 
 (unless (package-installed-p 'use-package)
   (package-install 'use-package))
-
-;; ;; Bootstrap straight.el
-;; (defvar bootstrap-version)
-;; (let ((bootstrap-file
-;;       (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
-;;       (bootstrap-version 5))
-;;   (unless (file-exists-p bootstrap-file)
-;;     (with-current-buffer
-;;         (url-retrieve-synchronously
-;;         "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
-;;         'silent 'inhibit-cookies)
-;;       (goto-char (point-max))
-;;       (eval-print-last-sexp)))
-;;   (load bootstrap-file nil 'nomessage))
-
-;; ;; Always use straight to install on systems other than Linux
-;; (setq straight-use-package-by-default (not (eq system-type 'gnu/linux)))
-
-;; ;; Use straight.el for use-package expressions
-;; (straight-use-package 'use-package)
 
 (use-package diminish :ensure t)
 
@@ -189,8 +165,37 @@
   (setq evil-want-C-i-jump nil)
   (setq evil-respect-visual-line-mode t)
   (setq evil-undo-system 'undo-tree)
+
+  ;; Disable -- INSERT -- and such messages
+  (setq evil-insert-state-message nil)
+  (setq evil-normal-state-message nil)
+  (setq evil-emacs-state-message nil)
+  (setq evil-visual-state-message nil)
+  (setq evil-replace-state-message nil)
+
+  (setq evil-disable-insert-state-bindings t)
+
   :config
-  (evil-mode 1))
+  (evil-mode 1)
+  ;; ; redefine emacs state to intercept the escape key like insert-state does:
+  ;; (evil-define-state emacs
+  ;;   "Emacs state that can be exited with the escape key."
+  ;;   :tag " <EE> "
+  ;;   :message "-- EMACS WITH ESCAPE --"
+  ;;   :input-method t
+  ;; )
+
+
+  ;; (define-key evil-emacs-state-map (kbd "C-[") 'evil-normal-state)
+
+  ;; (defadvice evil-insert-state (around emacs-state-instead-of-insert-state activate)
+  ;;   (evil-emacs-state))
+  )
+
+;; one day i will remove evil mode
+(define-key ctl-l-map "et" 'evil-mode) ;; toggle evil-mode
+;; (define-key ctl-l-map "ee" 'turn-on-evil-mode) ;; toggle evil-mode
+;; (define-key ctl-l-map "ed" 'turn-off-evil-mode) ;; toggle evil-mode
 
 (use-package dired
   :ensure nil
@@ -206,7 +211,10 @@
 (define-key ctl-l-map "dD" 'dired-create-directory)
 
 
-(define-key ctl-l-map "cc" 'compile)
+;; some more keybindings
+(global-set-key (kbd "C-M-, m") 'mark-sexp)
+(global-set-key (kbd "C-M-, w") 'mark-word)
+
 
 (use-package general
   :ensure t
@@ -214,12 +222,12 @@
   (general-evil-setup t)
 
   (general-create-definer usf/leader-kdef
-    :keymaps '(normal insert visual emacs)
-    :prefix "\\"
-    :global-prefix "C-\\")
+	:keymaps '(normal insert visual emacs)
+	:prefix "\\"
+	:global-prefix "C-\\")
 
   (general-create-definer usf/cc-keys
-    :prefix "C-c"))
+	:prefix "C-c"))
 
 (usf/leader-kdef
   "t"  '(:ignore t :which-key "toggles")
@@ -251,10 +259,12 @@
   :defer t
   :diminish
   :hook ((text-mode . git-gutter-mode)
-         (prog-mode . git-gutter-mode)))
+		 (prog-mode . git-gutter-mode)))
 
 (use-package rust-mode :ensure t)
 (use-package go-mode :ensure t)
+
+
 
 (use-package lsp-mode
   :ensure t
@@ -263,13 +273,13 @@
   ;; set prefix for lsp-command-keymap (few alternatives - "C-l", "C-c l")
   (setq lsp-keymap-prefix "C-c l")
   :hook (;; replace XXX-mode with concrete major-mode(e. g. python-mode)
-         ;; (python-mode . lsp-deferred)
+		 ;; (python-mode . lsp-deferred)
 		 ;; (c-mode . lsp)
 		 ;; (c++-mode  lsp
 		 ;; (rust-mode . lsp)
 		 ;; (go-mode . lsp)
-         ;; if you want which-key integration
-         (lsp-mode . lsp-enable-which-key-integration))
+		 ;; if you want which-key integration
+		 (lsp-mode . lsp-enable-which-key-integration))
   :commands (lsp lsp-deferred))
 
 ;; optionally
@@ -305,7 +315,7 @@
   (:map company-active-map
 		("<tab>" . company-indent-or-complete-common))
   )
- (global-company-mode)
+(global-company-mode)
 
 (usf/leader-kdef
   "l"  '(:ignore t :which-key "lsp")
@@ -322,19 +332,19 @@
   :ensure t
   :diminish
   :bind (("C-s" . swiper)
-         :map ivy-minibuffer-map
-         ("TAB" . ivy-alt-done)
-         ("C-f" . ivy-alt-done)
-         ("C-l" . ivy-alt-done)
-         ("C-j" . ivy-next-line)
-         ("C-k" . ivy-previous-line)
-         :map ivy-switch-buffer-map
-         ("C-k" . ivy-previous-line)
-         ("C-l" . ivy-done)
-         ("C-d" . ivy-switch-buffer-kill)
-         :map ivy-reverse-i-search-map
-         ("C-k" . ivy-previous-line)
-         ("C-d" . ivy-reverse-i-search-kill))
+		 :map ivy-minibuffer-map
+		 ("TAB" . ivy-alt-done)
+		 ("C-f" . ivy-alt-done)
+		 ("C-l" . ivy-alt-done)
+		 ("C-j" . ivy-next-line)
+		 ("C-k" . ivy-previous-line)
+		 :map ivy-switch-buffer-map
+		 ("C-k" . ivy-previous-line)
+		 ("C-l" . ivy-done)
+		 ("C-d" . ivy-switch-buffer-kill)
+		 :map ivy-reverse-i-search-map
+		 ("C-k" . ivy-previous-line)
+		 ("C-d" . ivy-reverse-i-search-kill))
   :init
   (ivy-mode 1)
   :config
@@ -356,10 +366,10 @@
 (use-package counsel
   :ensure t
   :bind (("M-x" . counsel-M-x)
-         ("C-x b" . counsel-ibuffer)
-         ("C-x C-f" . counsel-find-file)
-         ;; ("C-M-j" . counsel-switch-buffer)
-         ("C-M-l" . counsel-imenu))
+		 ("C-x b" . counsel-ibuffer)
+		 ("C-x C-f" . counsel-find-file)
+		 ;; ("C-M-j" . counsel-switch-buffer)
+		 ("C-M-l" . counsel-imenu))
   :config
   (setq ivy-initial-inputs-alist nil)) ;; Don't start searches with ^
 
@@ -378,21 +388,35 @@
 
 (require 'compile)
 
+
+(define-key ctl-l-map "cc" 'compile)
+(define-key ctl-l-map "cr" 'recompile)
+
 ;; when compiling open a new buffer and switch
 ;; to the buffer automatically
 ;; without any fancy splits or anything
 (setq special-display-buffer-names
-      '("*compilation*"))
+	  '("*compilation*"))
 
 (setq special-display-function
-      (lambda (buffer &optional args)
-        ;; (split-window)
-        (switch-to-buffer buffer)
-        (get-buffer-window buffer 0)))
+	  (lambda (buffer &optional args)
+		;; (split-window)
+		(switch-to-buffer buffer)
+		(get-buffer-window buffer 0)))
 
 
 (setq comment-auto-fill-only-comments t)
 (auto-fill-mode t)
-
-;; remember at the first time when i said speeding up startup time?
-(setq gc-cons-threshold (* 2 1000 1000))
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages
+   '(embark marginalia vertico yaml-mode which-key use-package undo-tree typescript-mode solarized-theme rust-mode magit lsp-ui lsp-ivy gruvbox-theme gruber-darker-theme go-mode git-gutter general flycheck evil-nerd-commenter evil diminish counsel company atom-one-dark-theme)))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
