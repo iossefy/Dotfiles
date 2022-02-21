@@ -1,7 +1,6 @@
 ;; -*- lexical-binding: t -*-
 
-; Startup Performace
-;
+;; Startup Performace
 ;; The default is 800 kb. measured in bytes
 (setq gc-cons-threshold (* 50 1000 1000))
 ;; change the user-emacs-directory to keep unwanted things out of ~/.emacs.d
@@ -80,17 +79,15 @@
 (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
 
 
-; set font
-; WARNING: You should have Fira Code font installed
-; on your system. change the font or delete the following
-; region if you dont want to deal with it
+;; set font
+;; WARNING: You should have Fira Code font installed
+;; on your system. change the font or delete the following
+;; region if you dont want to deal with it
 (set-face-attribute 'default nil
 					:font "Fira Code-9"
 					:weight 'normal)
 
-;
-; keybindings emacs way
-;
+;; keybindings emacs way
 (global-unset-key "\C-l")
 (defvar ctl-l-map (make-keymap)
   "Keymap for local bindings and functions, prefixed by (^L)")
@@ -120,11 +117,11 @@
 (unless package-archive-contents
   (package-refresh-contents))
 
-; load theme
+;; load theme
 (unless (package-installed-p 'solarized-theme)
   (package-install 'solarized-theme))
 
-; another cool theme
+;; another cool theme
 (unless (package-installed-p 'gruber-darker-theme)
   (package-install 'gruber-darker-theme))
 
@@ -154,7 +151,7 @@
   :init
   (global-undo-tree-mode 1))
 
-; Enable evil
+;; Enable evil
 (use-package evil
   :ensure t
   :diminish
@@ -177,25 +174,14 @@
 
   :config
   (evil-mode 1)
-  ;; ; redefine emacs state to intercept the escape key like insert-state does:
-  ;; (evil-define-state emacs
-  ;;   "Emacs state that can be exited with the escape key."
-  ;;   :tag " <EE> "
-  ;;   :message "-- EMACS WITH ESCAPE --"
-  ;;   :input-method t
-  ;; )
-
 
   ;; (define-key evil-emacs-state-map (kbd "C-[") 'evil-normal-state)
-
-  ;; (defadvice evil-insert-state (around emacs-state-instead-of-insert-state activate)
-  ;;   (evil-emacs-state))
+  (define-key evil-emacs-state-map (kbd "<escape>") 'evil-normal-state)
+  (defadvice evil-insert-state (around emacs-state-instead-of-insert-state activate)
+	(evil-emacs-state))
   )
 
-;; one day i will remove evil mode
 (define-key ctl-l-map "et" 'evil-mode) ;; toggle evil-mode
-;; (define-key ctl-l-map "ee" 'turn-on-evil-mode) ;; toggle evil-mode
-;; (define-key ctl-l-map "ed" 'turn-off-evil-mode) ;; toggle evil-mode
 
 (use-package dired
   :ensure nil
@@ -263,7 +249,6 @@
 
 (use-package rust-mode :ensure t)
 (use-package go-mode :ensure t)
-
 
 
 (use-package lsp-mode
@@ -353,7 +338,7 @@
   (setq ivy-count-format "(%d/%d) ")
   (setq enable-recursive-minibuffers t)
 
-  ;; ;; Use different regex strategies per completion command
+  ;; Use different regex strategies per completion command
   (push '(swiper . ivy--regex-ignore-order) ivy-re-builders-alist)
   (push '(counsel-M-x . ivy--regex-ignore-order) ivy-re-builders-alist)
 
