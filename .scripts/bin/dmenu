@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+/usr/bin/dmenu -nb '#0f111a' -sf '#bbb' -sb '#444' -nf '#8fa0c6' "$@"

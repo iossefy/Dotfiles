@@ -3,7 +3,7 @@ PATH="$HOME/.cargo/bin:$PATH"
 # PATH="$(ruby -e 'print Gem.user_dir')/bin:$PATH"
 PATH="$HOME/.node_modules/bin:$PATH"
 PATH="$HOME/.local/bin:$PATH"
-PATH="$HOME/.scripts/bin/:$PATH"
+PATH="$HOME/.scripts/bin:$PATH"
 
 PS1="%{$fg[white]%}[%{$fg[cyan]%}%~%{$fg[white]%}]-> %(?,,%{$fg[white]%}[%{$fg_bold[white]%}%?%{$reset_color%}%{$fg[white]%}])
 %{$fg_bold[blue]%};%{$reset_color%} "
