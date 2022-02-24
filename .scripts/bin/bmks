@@ -6,6 +6,8 @@ PREFERED_LAUNCHER=dmenu
 URL_FILE_PATH=$HOME/.bmks/
 # name of file urls will be stored in
 URL_FILE_NAME=urls
+# number of lines shown in the dmenu
+DMENU_LINE_DISPLAY=8
 
 show_usage() {
 	printf "bmks: unix bookmark management that sucks less
@@ -53,7 +55,8 @@ bmks_del() {
 bmks_display() {
 	bmks_check
 	case $PREFERED_LAUNCHER in
-		dmenu) cat $URL_FILE_PATH/$URL_FILE_NAME | sort | dmenu -l $(cat $URL_FILE_PATH/$URL_FILE_NAME | wc -l) | awk '{print $(NF)}' | xargs -I '{}' $BROWSER {} ;;
+#		dmenu) cat $URL_FILE_PATH/$URL_FILE_NAME | sort | dmenu -l $(cat $URL_FILE_PATH/$URL_FILE_NAME | wc -l) | awk '{print $(NF)}' | xargs -I '{}' $BROWSER {} ;;
+        dmenu) cat $URL_FILE_PATH/$URL_FILE_NAME | sort | dmenu -l ${DMENU_LINE_DISPLAY} | awk '{print $(NF)}' | xargs -I '{}' $BROWSER {} ;;
 		fzf) cat $URL_FILE_PATH/$URL_FILE_NAME | sort | fzf | awk '{print $(NF)}' | xargs -I '{}' $BROWSER {} ;;
 	esac
 }
