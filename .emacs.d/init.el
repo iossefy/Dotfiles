@@ -19,17 +19,19 @@
 (setq auto-save-file-name-transforms
 	  `((".*" "~/.emacs.d/saves" t)))
 
-
 ;; avoid silly errors
 (set-default-coding-systems 'utf-8)
-
 
 ;; hide startup message
 (setq-default inhibit-splash-screen t
 			  inhibit-startup-message t
+			  indent-tabs-mode t
 			  tab-width 4
 			  c-basic-offset 4
 			  compilation-scroll-output t)
+
+;; this sets HTML tab to 4 spaces (2 spaces is nice, 4 is ugly)
+;; (defvaralias 'sgml-basic-offset 'tab-width)
 
 
 ;; Enable `relative` line numbers
@@ -136,7 +138,22 @@
 (unless (package-installed-p 'use-package)
   (package-install 'use-package))
 
+
 (use-package diminish :ensure t)
+
+
+(use-package yasnippet
+  :ensure t
+  :diminish t
+  :config
+  (setq yas-snippet-dirs '("~/.emacs.d/snippets"))  ;; personal snippets
+  (yas-reload-all)
+  (add-hook 'prog-mode-hook #'yas-minor-mode)
+  (diminish 'yas-minor-mode)
+  (defun yasnippet-snippets--fixed-indent ()
+	"Set `yas-indent-line' to `fixed'."
+	(set (make-local-variable 'yas-indent-line) 'fixed)))
+
 
 (use-package which-key
   :ensure t
@@ -178,8 +195,7 @@
   ;; (define-key evil-emacs-state-map (kbd "C-[") 'evil-normal-state)
   (define-key evil-emacs-state-map (kbd "<escape>") 'evil-normal-state)
   (defadvice evil-insert-state (around emacs-state-instead-of-insert-state activate)
-	(evil-emacs-state))
-  )
+	(evil-emacs-state)))
 
 (define-key ctl-l-map "et" 'evil-mode) ;; toggle evil-mode
 
@@ -373,7 +389,6 @@
 
 (require 'compile)
 
-
 (define-key ctl-l-map "cc" 'compile)
 (define-key ctl-l-map "cr" 'recompile)
 
@@ -389,19 +404,8 @@
 		(switch-to-buffer buffer)
 		(get-buffer-window buffer 0)))
 
+;; (adyasd-to-list 'load-path "~/.emacs.d/")
+;; (load "org-conf.el")
 
 (setq comment-auto-fill-only-comments t)
 (auto-fill-mode t)
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(package-selected-packages
-   '(embark marginalia vertico yaml-mode which-key use-package undo-tree typescript-mode solarized-theme rust-mode magit lsp-ui lsp-ivy gruvbox-theme gruber-darker-theme go-mode git-gutter general flycheck evil-nerd-commenter evil diminish counsel company atom-one-dark-theme)))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
