@@ -33,7 +33,6 @@
 ;; this sets HTML tab to 4 spaces (2 spaces is nice, 4 is ugly)
 ;; (defvaralias 'sgml-basic-offset 'tab-width)
 
-
 ;; Enable `relative` line numbers
 (column-number-mode)
 (global-display-line-numbers-mode)
@@ -65,6 +64,18 @@
 
 ;; stop the annoying beep sound
 (setq ring-bell-function 'ignore)
+
+
+;; Enable recursive minibuffers
+(setq enable-recursive-minibuffers t)
+
+;; Do not allow the cursor in the minibuffer prompt
+(setq minibuffer-prompt-properties
+      '(read-only t cursor-intangible t face minibuffer-prompt))
+(add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)
+;; Emacs 28: Hide commands in M-x which do not work in the current mode.
+(setq read-extended-command-predicate
+      #'command-completion-default-include-p)
 
 ;; mouse config
 (setq mouse-wheel-scroll-amount '(1 ((shift) . 1))) ; one line at a time
@@ -229,11 +240,54 @@
 (define-key ctl-l-map "dr" 'dired-do-rename)
 (define-key ctl-l-map "dD" 'dired-create-directory)
 
-
 ;; some more keybindings
 (global-set-key (kbd "C-M-, m") 'mark-sexp)
 (global-set-key (kbd "C-M-, w") 'mark-word)
 
+;; Example configuration for Consult
+(use-package consult
+  :ensure t
+  :bind (
+         ;; C-x bindings (ctl-x-map)
+         ("C-x b" . consult-buffer)                ;; orig. switch-to-buffer
+         ("C-x 4 b" . consult-buffer-other-window) ;; orig. switch-to-buffer-other-window
+         ("C-x 5 b" . consult-buffer-other-frame)  ;; orig. switch-to-buffer-other-frame
+         ("C-x p b" . consult-project-buffer)      ;; orig. project-switch-to-buffer
+         ;; M-g bindings (goto-map)
+         ("M-g g" . consult-goto-line)             ;; orig. goto-line
+         ("M-g m" . consult-mark)
+         ("M-g k" . consult-global-mark)
+         ("M-g i" . consult-imenu)
+         ("M-g I" . consult-imenu-multi)
+         ;; M-s bindings (search-map)
+         ("M-s g" . consult-grep)
+         ("C-s" . consult-line)
+         ("M-s L" . consult-line-multi))
+  ;; Enable automatic preview at point in the *Completions* buffer. This is
+  ;; relevant when you use the default completion UI.
+  :hook (completion-list-mode . consult-preview-at-point-mode)
+  :init
+  ;; Use Consult to select xref locations with preview
+  (setq xref-show-xrefs-function #'consult-xref
+        xref-show-definitions-function #'consult-xref))
+
+;; Enable vertico
+(use-package vertico
+  :ensure t
+  :init
+  (vertico-mode))
+
+(use-package orderless
+  :ensure t
+  :init
+  (setq completion-styles '(orderless)
+        completion-category-defaults nil
+        completion-category-overrides '((file (styles partial-completion)))))
+
+(use-package savehist
+  :ensure t
+  :init
+  (savehist-mode))
 
 (use-package general
   :ensure t
@@ -251,7 +305,7 @@
 (usf/leader-kdef
   "t"  '(:ignore t :which-key "toggles")
   "tw" 'whitespace-mode
-  "tt" '(counsel-load-theme :which-key "choose theme"))
+  "tt" '(consult-theme :which-key "choose theme"))
 
 (use-package magit
   :ensure t
@@ -273,12 +327,12 @@
   "gF"  'magit-fetch-all
   "gr"  'magit-rebase)
 
-(use-package git-gutter
-  :ensure t
-  :defer t
-  :diminish
-  :hook ((text-mode . git-gutter-mode)
-		 (prog-mode . git-gutter-mode)))
+;; (use-package git-gutter
+;;   :ensure t
+;;   :defer t
+;;   :diminish
+;;   :hook ((text-mode . git-gutter-mode)
+;; 		 (prog-mode . git-gutter-mode)))
 
 (use-package rust-mode :ensure t)
 (use-package go-mode :ensure t)
@@ -300,23 +354,6 @@
 		 (lsp-mode . lsp-enable-which-key-integration))
   :commands (lsp lsp-deferred))
 
-;; optionally
-(use-package lsp-ui
-  :ensure t
-  :after lsp
-  :commands lsp-ui-mode
-  :config
-  (setq lsp-ui-sideline-enable t)
-  (setq lsp-ui-sideline-show-hover nil)
-  (setq lsp-ui-doc-position 'bottom)
-  (lsp-ui-doc-show))
-
-;; if you are ivy user
-(use-package lsp-ivy
-  :ensure t
-  :after (ivy lsp)
-  :commands lsp-ivy-workspace-symbol)
-
 (use-package flycheck
   :ensure t
   :defer t
@@ -331,8 +368,7 @@
   :init
   :bind
   (:map company-active-map
-		("<tab>" . company-indent-or-complete-common))
-  )
+		("<tab>" . company-indent-or-complete-common)))
 (global-company-mode)
 
 (usf/leader-kdef
@@ -346,50 +382,6 @@
   "lS" 'lsp-ui-sideline-mode
   "lX" 'lsp-execute-code-action)
 
-(use-package ivy
-  :ensure t
-  :diminish
-  :bind (("C-s" . swiper)
-		 :map ivy-minibuffer-map
-		 ("TAB" . ivy-alt-done)
-		 ("C-f" . ivy-alt-done)
-		 ("C-l" . ivy-alt-done)
-		 ("C-j" . ivy-next-line)
-		 ("C-k" . ivy-previous-line)
-		 :map ivy-switch-buffer-map
-		 ("C-k" . ivy-previous-line)
-		 ("C-l" . ivy-done)
-		 ("C-d" . ivy-switch-buffer-kill)
-		 :map ivy-reverse-i-search-map
-		 ("C-k" . ivy-previous-line)
-		 ("C-d" . ivy-reverse-i-search-kill))
-  :init
-  (ivy-mode 1)
-  :config
-  (setq ivy-use-virtual-buffers t)
-  (setq ivy-wrap t)
-  (setq ivy-count-format "(%d/%d) ")
-  (setq enable-recursive-minibuffers t)
-
-  ;; Use different regex strategies per completion command
-  (push '(swiper . ivy--regex-ignore-order) ivy-re-builders-alist)
-  (push '(counsel-M-x . ivy--regex-ignore-order) ivy-re-builders-alist)
-
-  ;; Set minibuffer height for different commands
-  (setf (alist-get 'counsel-projectile-ag ivy-height-alist) 15)
-  (setf (alist-get 'counsel-projectile-rg ivy-height-alist) 15)
-  (setf (alist-get 'swiper ivy-height-alist) 15)
-  (setf (alist-get 'counsel-switch-buffer ivy-height-alist) 7))
-
-(use-package counsel
-  :ensure t
-  :bind (("M-x" . counsel-M-x)
-		 ("C-x b" . counsel-ibuffer)
-		 ("C-x C-f" . counsel-find-file)
-		 ;; ("C-M-j" . counsel-switch-buffer)
-		 ("C-M-l" . counsel-imenu))
-  :config
-  (setq ivy-initial-inputs-alist nil)) ;; Don't start searches with ^
 
 (use-package evil-nerd-commenter
   :ensure t
@@ -421,8 +413,6 @@
 		(switch-to-buffer buffer)
 		(get-buffer-window buffer 0)))
 
-;; (adyasd-to-list 'load-path "~/.emacs.d/")
-;; (load "org-conf.el")
-
 (setq comment-auto-fill-only-comments t)
 (auto-fill-mode t)
+
