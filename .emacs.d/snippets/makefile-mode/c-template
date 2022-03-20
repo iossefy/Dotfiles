@@ -1,0 +1,11 @@
+# -*- mode: snippet -*-
+# name: ctemplate
+# key: ctemplate
+# --
+CC=$1
+FLAGS=$2
+SRC=$3
+TARGET=$4
+
+all:
+	$(CC) $(FLAGS) $(SRC) -o $(TARGET)
