@@ -3,10 +3,11 @@
 ;; Startup Performace
 ;; The default is 800 kb. measured in bytes
 (setq gc-cons-threshold (* 50 1000 1000))
+;; increase the amount of data which emacs reads from the process
+(setq read-process-output-max (* 1024 1024)) ;; 1mb
 ;; change the user-emacs-directory to keep unwanted things out of ~/.emacs.d
 (setq user-emacs-directory (expand-file-name "~/.cache/emacs/")
 	  url-history-file (expand-file-name "url/history" user-emacs-directory))
-
 
 ;; autosave
 (setq backup-by-copying t    ; don't clobber symlinks
@@ -50,7 +51,6 @@
 				eshell-mode-hook))
   (add-hook mode (lambda () (display-line-numbers-mode 0))))
 
-
 ;; custom modeline (time-format)
 (setq display-time-format "%l:%M: %p %b %y"
 	  display-time-default-load-average nil)
@@ -64,7 +64,6 @@
 
 ;; stop the annoying beep sound
 (setq ring-bell-function 'ignore)
-
 
 ;; Enable recursive minibuffers
 (setq enable-recursive-minibuffers t)
@@ -82,7 +81,6 @@
 (setq mouse-wheel-progressive-speed nil) ; don't accelerate scrolling
 (setq mouse-wheel-follow-mouse 't) ; scroll window under mouse
 (setq scroll-step 1) ;; keyboard scroll one line at a time
-
 
 ;; maximize window by default
 (set-frame-parameter (selected-frame) 'fullscreen 'maximized)
@@ -108,7 +106,6 @@
   (indent-according-to-mode))
 (global-set-key (kbd "M-<down>") 'move-line-down)
 
-
 ;; set font
 ;; WARNING: You should have Fira Code font installed
 ;; on your system. change the font or delete the following
@@ -133,7 +130,6 @@
 (define-key ctl-l-map "T"  'delete-trailing-whitespace)
 (define-key ctl-l-map "k"  'kill-current-buffer)
 
-
 ;; Initialize package sources
 (require 'package)
 
@@ -147,7 +143,11 @@
 (unless package-archive-contents
   (package-refresh-contents))
 
+;;;;;;;;;;;;;;;;;;;;
 ;; load theme
+;;;;;;;;;;;;;;;;;;;;
+
+;; solarized colors are one of my favourite colorschemes
 (unless (package-installed-p 'solarized-theme)
   (package-install 'solarized-theme))
 
@@ -155,20 +155,25 @@
 (unless (package-installed-p 'gruber-darker-theme)
   (package-install 'gruber-darker-theme))
 
-;; more readable :)
-(if (display-graphic-p)
-	(progn
-	  ;; if graphic
-	  (load-theme 'solarized-dark t))
-  ;; else (inside terminal?)
-  (load-theme 'gruber-darker t))
+;; use this theme in graphic mode and the other if running inside a term
+;; (if (display-graphic-p)
+;; 	(progn
+;; 	  ;; if graphic
+;; 	  (load-theme 'solarized-dark t))
+;;   ;; else (inside terminal?)
+;;   (load-theme 'gruber-darker t))
+
+;; add themes directory
+(add-to-list 'custom-theme-load-path "~/.emacs.d/themes/")
+;; load the theme
+(load-theme 'less t)
+
 
 (unless (package-installed-p 'use-package)
   (package-install 'use-package))
 
 
 (use-package diminish :ensure t)
-
 
 (use-package yasnippet
   :ensure t
@@ -291,6 +296,7 @@
 
 (use-package general
   :ensure t
+  :defer t
   :config
   (general-evil-setup t)
 
@@ -309,6 +315,7 @@
 
 (use-package magit
   :ensure t
+  :defer t
   :bind ("C-M-;" . magit-status)
   :commands (magit-status magit-get-current-branch))
 
@@ -347,12 +354,26 @@
   :hook (;; replace XXX-mode with concrete major-mode(e. g. python-mode)
 		 ;; (python-mode . lsp-deferred)
 		 ;; (c-mode . lsp)
-		 ;; (c++-mode  lsp
+		 ;; (c++-mode  lsp)
 		 ;; (rust-mode . lsp)
 		 ;; (go-mode . lsp)
 		 ;; if you want which-key integration
 		 (lsp-mode . lsp-enable-which-key-integration))
-  :commands (lsp lsp-deferred))
+  :commands (lsp lsp-deferred)
+
+  :config
+  (setq lsp-modeline-code-actions-segments '(count name)))
+
+(use-package lsp-ui
+  :ensure t
+  :after lsp
+  :defer
+  :commands lsp-ui-mode
+  :config
+
+  (setq lsp-ui-sideline-enable t)
+  (setq lsp-ui-doc-position 'bottom)
+  (lsp-ui-doc-show))
 
 (use-package flycheck
   :ensure t
@@ -415,4 +436,3 @@
 
 (setq comment-auto-fill-only-comments t)
 (auto-fill-mode t)
-
