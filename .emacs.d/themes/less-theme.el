@@ -1,7 +1,8 @@
 ;; less-theme.el --- A minimalistic custom theme for Emacs
-;; Revision 3
+;; Revision 4
 ;;
 ;; Copyright (C) 2008-2010, 2016 Jason R. Blevins <jrblevin@sdf.org>
+;; Copyright (C) 2022-2022, 2022 Youssef Hesham <mail@youssefy.com>
 ;;
 ;; Permission is hereby granted, free of charge, to any person obtaining a copy
 ;; of this software and associated documentation files (the "Software"), to deal
@@ -64,6 +65,20 @@ by `color-theme-late-night' and the Less is More theme for vim.")
  '(widget-button-face ((t (:bold t :foreground "#888"))))
  '(widget-field-face ((t (:bold t :foreground "#999"))))
 
+ ;; Compilation
+ `(compilation-info ((t ,(list :foreground "#6491db"
+							   :inherit 'unspecified))))
+ `(compilation-warning ((t ,(list :foreground "#FFFF66"
+								  :bold t
+								  :inherit 'unspecified))))
+ `(compilation-error ((t (:foreground ,"#ff726f"))))
+ `(compilation-mode-line-fail ((t ,(list :foreground "#ff2a26"
+										 :weight 'bold
+										 :inherit 'unspecified))))
+ `(compilation-mode-line-exit ((t ,(list :foreground "#143D55"
+										 :weight 'bold
+										 :inherit 'unspecified))))
+ 
  ;; Search
  '(isearch ((t (:foreground "black" :background "red"))))
  '(isearch-lazy-highlight-face ((t (:foreground "red"))))
@@ -91,78 +106,6 @@ by `color-theme-late-night' and the Less is More theme for vim.")
  '(info-menu-header ((t (:bold t :foreground "#666"))))
  '(info-node ((t (:bold t :foreground "#888"))))
  '(info-xref ((t (:bold t :foreground "#777"))))
-
- ;; gnus
- '(gnus-cite-attribution-face ((t (:foreground "#bbb"))))
- '(gnus-cite-face-1 ((t (:foreground "#aaa"))))
- '(gnus-cite-face-2 ((t (:foreground "#aaa"))))
- '(gnus-cite-face-3 ((t (:foreground "#aaa"))))
- '(gnus-cite-face-4 ((t (:foreground "#aaa"))))
- '(gnus-cite-face-5 ((t (:foreground "#aaa"))))
- '(gnus-cite-face-6 ((t (:foreground "#aaa"))))
- '(gnus-cite-face-7 ((t (:foreground "#aaa"))))
- '(gnus-cite-face-8 ((t (:foreground "#aaa"))))
- '(gnus-cite-face-9 ((t (:foreground "#aaa"))))
- '(gnus-emphasis-bold ((t (:bold t))))
- '(gnus-emphasis-bold-italic ((t (:italic t :bold t))))
- '(gnus-emphasis-highlight-words ((t (:foreground "#ccc"))))
- '(gnus-emphasis-italic ((t (:italic t))))
- '(gnus-emphasis-underline ((t (:underline t))))
- '(gnus-emphasis-underline-bold ((t (:bold t :underline t))))
- '(gnus-emphasis-underline-bold-italic ((t (:italic t :bold t :underline t))))
- '(gnus-emphasis-underline-italic ((t (:italic t :underline t))))
- '(gnus-group-mail-1-empty-face ((t (:foreground "#999"))))
- '(gnus-group-mail-1-face ((t (:bold t :foreground "#999"))))
- '(gnus-group-mail-2-empty-face ((t (:foreground "#999"))))
- '(gnus-group-mail-2-face ((t (:bold t :foreground "#999"))))
- '(gnus-group-mail-3-empty-face ((t (:foreground "#888"))))
- '(gnus-group-mail-3-face ((t (:bold t :foreground "#888"))))
- '(gnus-group-mail-low-empty-face ((t (:foreground "#777"))))
- '(gnus-group-mail-low-face ((t (:bold t :foreground "#777"))))
- '(gnus-group-news-1-empty-face ((t (:foreground "#999"))))
- '(gnus-group-news-1-face ((t (:bold t :foreground "#999"))))
- '(gnus-group-news-2-empty-face ((t (:foreground "#888"))))
- '(gnus-group-news-2-face ((t (:bold t :foreground "#888"))))
- '(gnus-group-news-3-empty-face ((t (:foreground "#777"))))
- '(gnus-group-news-3-face ((t (:bold t :foreground "#777"))))
- '(gnus-group-news-4-empty-face ((t (:foreground "#666"))))
- '(gnus-group-news-4-face ((t (:bold t :foreground "#666"))))
- '(gnus-group-news-5-empty-face ((t (:foreground "#666"))))
- '(gnus-group-news-5-face ((t (:bold t :foreground "#666"))))
- '(gnus-group-news-6-empty-face ((t (:foreground "#666"))))
- '(gnus-group-news-6-face ((t (:bold t :foreground "#666"))))
- '(gnus-group-news-low-empty-face ((t (:foreground "#666"))))
- '(gnus-group-news-low-face ((t (:bold t :foreground "#666"))))
- '(gnus-header-content-face ((t (:foreground "#888"))))
- '(gnus-header-from-face ((t (:bold t :foreground "#888"))))
- '(gnus-header-name-face ((t (:bold t :foreground "#777"))))
- '(gnus-header-newsgroups-face ((t (:bold t :foreground "#777"))))
- '(gnus-header-subject-face ((t (:bold t :foreground "#999"))))
- '(gnus-signature-face ((t (:foreground "#444"))))
- '(gnus-splash-face ((t (:foreground "#ccc"))))
- '(gnus-summary-cancelled-face ((t (:background "#555" :foreground "#000"))))
- '(gnus-summary-high-ancient-face ((t (:bold t :foreground "#555"))))
- '(gnus-summary-high-read-face ((t (:bold t :foreground "#666"))))
- '(gnus-summary-high-ticked-face ((t (:bold t :foreground "#777"))))
- '(gnus-summary-high-unread-face ((t (:bold t :foreground "#888"))))
- '(gnus-summary-low-ancient-face ((t (:foreground "#444"))))
- '(gnus-summary-low-read-face ((t (:foreground "#555"))))
- '(gnus-summary-low-ticked-face ((t (:foreground "#666"))))
- '(gnus-summary-low-unread-face ((t (:foreground "#777"))))
- '(gnus-summary-normal-ancient-face ((t (:foreground "#555"))))
- '(gnus-summary-normal-read-face ((t (:foreground "#666"))))
- '(gnus-summary-normal-ticked-face ((t (:foreground "#777"))))
- '(gnus-summary-normal-unread-face ((t (:foreground "#888"))))
- '(gnus-summary-selected-face ((t (:background "#333"))))
- '(message-cited-text-face ((t (:foreground "#aaa"))))
- '(message-header-cc-face ((t (:foreground "#888"))))
- '(message-header-name-face ((t (:bold t :foreground "#777"))))
- '(message-header-newsgroups-face ((t (:bold t :foreground "#777"))))
- '(message-header-other-face ((t (:foreground "#666"))))
- '(message-header-subject-face ((t (:bold t :foreground "#999"))))
- '(message-header-to-face ((t (:bold t :foreground "#777"))))
- '(message-header-xheader-face ((t (:foreground "#666"))))
- '(message-separator-face ((t (:foreground "#999"))))
 
  ;; erc
  '(erc-action-face ((t (nil))))
@@ -219,7 +162,7 @@ by `color-theme-late-night' and the Less is More theme for vim.")
 ;;;###autoload
 (when load-file-name
   (add-to-list 'custom-theme-load-path
-               (file-name-as-directory (file-name-directory load-file-name))))
+			   (file-name-as-directory (file-name-directory load-file-name))))
 
 ;; Local Variables:
 ;; eval: (when (require 'rainbow-mode nil t) (rainbow-mode 1))
