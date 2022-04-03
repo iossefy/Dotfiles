@@ -1,5 +1,7 @@
 ;; -*- lexical-binding: t -*-
 
+;; Author: Youssef Hesham <m1cr0xf7>
+
 ;; Startup Performace
 ;; The default is 800 kb. measured in bytes
 (setq gc-cons-threshold (* 50 1000 1000))
@@ -47,6 +49,8 @@
 ;; disable line numbers in these modes
 (dolist (mode '(org-mode-hook
 				term-mode-hook
+				Man-mode-hook
+				woman-mode-hook
 				shell-mode-hook
 				eshell-mode-hook))
   (add-hook mode (lambda () (display-line-numbers-mode 0))))
@@ -54,7 +58,6 @@
 ;; custom modeline (time-format)
 (setq display-time-format "%l:%M: %p %b %y"
 	  display-time-default-load-average nil)
-
 
 ;; hide scrollbar, menubar and toolbar. highlight braces
 (tool-bar-mode 0)
@@ -70,11 +73,11 @@
 
 ;; Do not allow the cursor in the minibuffer prompt
 (setq minibuffer-prompt-properties
-      '(read-only t cursor-intangible t face minibuffer-prompt))
+	  '(read-only t cursor-intangible t face minibuffer-prompt))
 (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)
 ;; Emacs 28: Hide commands in M-x which do not work in the current mode.
 (setq read-extended-command-predicate
-      #'command-completion-default-include-p)
+	  #'command-completion-default-include-p)
 
 ;; mouse config
 (setq mouse-wheel-scroll-amount '(1 ((shift) . 1))) ; one line at a time
@@ -89,7 +92,7 @@
 ;; escape
 (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
 
-;;;; editor
+;; editor
 (defun move-line-up ()
   "Move up the current line."
   (interactive)
@@ -105,14 +108,37 @@
   (forward-line -1)
   (indent-according-to-mode))
 (global-set-key (kbd "M-<down>") 'move-line-down)
+(defun duplicate-line ()
+  (interactive)
+  (move-beginning-of-line 1)
+  (kill-line)
+  (yank)
+  (newline)
+  (yank))
+(defun delete-ws-and-indent ()
+  "delete trailing whitespace and indent the whole buffer"
+  (interactive)
+  (mark-whole-buffer)
+  (delete-trailing-whitespace)
+  (indent-region (point-min) (point-max) nil))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Appearence
+;; setting up the font.
+;;
+;; i will load the theme after i install
+;; them as packages. not all themes are
+;; present in the themes/ directory.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; set font
 ;; WARNING: You should have Fira Code font installed
 ;; on your system. change the font or delete the following
 ;; region if you dont want to deal with it
 (set-face-attribute 'default nil
-					:font "Fira Code-9"
-					:weight 'normal)
+					:family "Monospace"
+					:weight 'regular
+					:height 90)
 
 ;; keybindings emacs way
 (global-unset-key "\C-l")
@@ -121,11 +147,10 @@
 (define-key global-map "\C-l" 'Control-L-prefix)
 (fset 'Control-L-prefix ctl-l-map)
 
+;; Common keybindings
 (define-key ctl-l-map "l"  'recenter-top-bottom)
 (define-key ctl-l-map "g"  'goto-line)
-(define-key ctl-l-map "r"  'replace-string)
 (define-key ctl-l-map "R"  'replace-regexp)
-(define-key ctl-l-map "q"  'query-replace)
 (define-key ctl-l-map "Q"  'query-replace-regexp)
 (define-key ctl-l-map "T"  'delete-trailing-whitespace)
 (define-key ctl-l-map "k"  'kill-current-buffer)
@@ -150,11 +175,13 @@
 ;; solarized colors are one of my favourite colorschemes
 (unless (package-installed-p 'solarized-theme)
   (package-install 'solarized-theme))
-
 ;; another cool theme
 (unless (package-installed-p 'gruber-darker-theme)
   (package-install 'gruber-darker-theme))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Loading the theme
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; use this theme in graphic mode and the other if running inside a term
 ;; (if (display-graphic-p)
 ;; 	(progn
@@ -168,10 +195,11 @@
 ;; load the theme
 (load-theme 'less t)
 
-
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; External Packages (use-package)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (unless (package-installed-p 'use-package)
   (package-install 'use-package))
-
 
 (use-package diminish :ensure t)
 
@@ -187,7 +215,6 @@
 	"Set `yas-indent-line' to `fixed'."
 	(set (make-local-variable 'yas-indent-line) 'fixed)))
 
-
 (use-package which-key
   :ensure t
   :diminish which-key-mode
@@ -199,38 +226,41 @@
   :ensure t
   :diminish
   :init
-  (global-undo-tree-mode 1))
+  (global-undo-tree-mode 1)
+  (setq undo-tree-history-directory-alist '(("." . "~/.emacs.d/undo"))))
 
 ;; Enable evil
-(use-package evil
-  :ensure t
-  :diminish
-  :init
-  (setq evil-want-integration t)
-  (setq evil-want-keybinding nil)
-  (setq evil-want-C-u-scroll t)
-  (setq evil-want-C-i-jump nil)
-  (setq evil-respect-visual-line-mode t)
-  (setq evil-undo-system 'undo-tree)
+;; Extended VI Layer
+;; i still love vim btw.
+;; (use-package evil
+;;   :ensure t
+;;   :diminish
+;;   :init
+;;   (setq evil-want-integration t)
+;;   (setq evil-want-keybinding nil)
+;;   (setq evil-want-C-u-scroll t)
+;;   (setq evil-want-C-i-jump nil)
+;;   (setq evil-respect-visual-line-mode t)
+;;   (setq evil-undo-system 'undo-tree)
 
-  ;; Disable -- INSERT -- and such messages
-  (setq evil-insert-state-message nil)
-  (setq evil-normal-state-message nil)
-  (setq evil-emacs-state-message nil)
-  (setq evil-visual-state-message nil)
-  (setq evil-replace-state-message nil)
+;;   ;; Disable -- INSERT -- and such messages
+;;   (setq evil-insert-state-message nil)
+;;   (setq evil-normal-state-message nil)
+;;   (setq evil-emacs-state-message nil)
+;;   (setq evil-visual-state-message nil)
+;;   (setq evil-replace-state-message nil)
 
-  (setq evil-disable-insert-state-bindings t)
+;;   (setq evil-disable-insert-state-bindings t)
 
-  :config
-  (evil-mode 1)
+;;   :config
+;;   (evil-mode 1)
 
-  ;; (define-key evil-emacs-state-map (kbd "C-[") 'evil-normal-state)
-  (define-key evil-emacs-state-map (kbd "<escape>") 'evil-normal-state)
-  (defadvice evil-insert-state (around emacs-state-instead-of-insert-state activate)
-	(evil-emacs-state)))
-
-(define-key ctl-l-map "et" 'evil-mode) ;; toggle evil-mode
+;;   (evil-emacs-state)
+;;   (define-key ctl-l-map "et" 'evil-mode) ;; toggle evil-mode
+;;   (define-key evil-emacs-state-map (kbd "M-\\") 'evil-normal-state)
+;;   ;; (define-key evil-emacs-state-map (kbd "<escape>") 'evil-normal-state)
+;;   (defadvice evil-insert-state (around emacs-state-instead-of-insert-state activate)
+;; 	(evil-emacs-state)))
 
 (use-package dired
   :ensure nil
@@ -245,36 +275,40 @@
 (define-key ctl-l-map "dr" 'dired-do-rename)
 (define-key ctl-l-map "dD" 'dired-create-directory)
 
-;; some more keybindings
+;; marking
 (global-set-key (kbd "C-M-, m") 'mark-sexp)
 (global-set-key (kbd "C-M-, w") 'mark-word)
+(global-set-key (kbd "C-,") 'duplicate-line)
+;; easier way to navigate
+(global-set-key (kbd "M-[") 'backward-paragraph)
+(global-set-key (kbd "M-]") 'forward-paragraph)
 
 ;; Example configuration for Consult
 (use-package consult
   :ensure t
   :bind (
-         ;; C-x bindings (ctl-x-map)
-         ("C-x b" . consult-buffer)                ;; orig. switch-to-buffer
-         ("C-x 4 b" . consult-buffer-other-window) ;; orig. switch-to-buffer-other-window
-         ("C-x 5 b" . consult-buffer-other-frame)  ;; orig. switch-to-buffer-other-frame
-         ("C-x p b" . consult-project-buffer)      ;; orig. project-switch-to-buffer
-         ;; M-g bindings (goto-map)
-         ("M-g g" . consult-goto-line)             ;; orig. goto-line
-         ("M-g m" . consult-mark)
-         ("M-g k" . consult-global-mark)
-         ("M-g i" . consult-imenu)
-         ("M-g I" . consult-imenu-multi)
-         ;; M-s bindings (search-map)
-         ("M-s g" . consult-grep)
-         ("C-s" . consult-line)
-         ("M-s L" . consult-line-multi))
+		 ;; C-x bindings (ctl-x-map)
+		 ("C-x b" . consult-buffer)                ;; orig. switch-to-buffer
+		 ("C-x 4 b" . consult-buffer-other-window) ;; orig. switch-to-buffer-other-window
+		 ("C-x 5 b" . consult-buffer-other-frame)  ;; orig. switch-to-buffer-other-frame
+		 ("C-x p b" . consult-project-buffer)      ;; orig. project-switch-to-buffer
+		 ;; M-g bindings (goto-map)
+		 ("M-g g" . consult-goto-line)             ;; orig. goto-line
+		 ("M-g m" . consult-mark)
+		 ("M-g k" . consult-global-mark)
+		 ("M-g i" . consult-imenu)
+		 ("M-g I" . consult-imenu-multi)
+		 ;; M-s bindings (search-map)
+		 ("M-s g" . consult-grep)
+		 ("C-s" . consult-line)
+		 ("M-s L" . consult-line-multi))
   ;; Enable automatic preview at point in the *Completions* buffer. This is
   ;; relevant when you use the default completion UI.
   :hook (completion-list-mode . consult-preview-at-point-mode)
   :init
   ;; Use Consult to select xref locations with preview
   (setq xref-show-xrefs-function #'consult-xref
-        xref-show-definitions-function #'consult-xref))
+		xref-show-definitions-function #'consult-xref))
 
 ;; Enable vertico
 (use-package vertico
@@ -286,8 +320,8 @@
   :ensure t
   :init
   (setq completion-styles '(orderless)
-        completion-category-defaults nil
-        completion-category-overrides '((file (styles partial-completion)))))
+		completion-category-defaults nil
+		completion-category-overrides '((file (styles partial-completion)))))
 
 (use-package savehist
   :ensure t
@@ -298,25 +332,37 @@
   :ensure t
   :defer t
   :config
-  (general-evil-setup t)
+  (require 'general)
+  (global-unset-key (kbd "C-\\"))
+  ;; (general-evil-setup t)
 
   (general-create-definer usf/leader-kdef
-	:keymaps '(normal insert visual emacs)
-	:prefix "\\"
-	:global-prefix "C-\\")
-
-  (general-create-definer usf/cc-keys
-	:prefix "C-c"))
+	;; :keymaps '(normal visual emacs)
+	;; :prefix "\\"
+	:prefix "C-\\"
+	;; :global-prefix "C-\\"
+	))
 
 (usf/leader-kdef
   "t"  '(:ignore t :which-key "toggles")
   "tw" 'whitespace-mode
   "tt" '(consult-theme :which-key "choose theme"))
 
+;; e is a prefix for emacs
+;; and sometimes evil.
+(usf/leader-kdef
+  "ed" 'kill-whole-line)
+
+(usf/leader-kdef
+  ;; just like in vim
+  "gg"  'beginning-of-buffer
+  "G"   'end-of-buffer
+  ;; g=G instead of gg=G
+  "g=G" 'delete-ws-and-indent)
+
 (use-package magit
   :ensure t
   :defer t
-  :bind ("C-M-;" . magit-status)
   :commands (magit-status magit-get-current-branch))
 
 (usf/leader-kdef
@@ -328,22 +374,12 @@
   "glc" 'magit-log-current
   "glf" 'magit-log-buffer-file
   "gb"  'magit-branch
-  "gP"  'magit-push-current
-  "gp"  'magit-pull-branch
   "gf"  'magit-fetch
   "gF"  'magit-fetch-all
   "gr"  'magit-rebase)
 
-;; (use-package git-gutter
-;;   :ensure t
-;;   :defer t
-;;   :diminish
-;;   :hook ((text-mode . git-gutter-mode)
-;; 		 (prog-mode . git-gutter-mode)))
-
 (use-package rust-mode :ensure t)
 (use-package go-mode :ensure t)
-
 
 (use-package lsp-mode
   :ensure t
@@ -352,15 +388,10 @@
   ;; set prefix for lsp-command-keymap (few alternatives - "C-l", "C-c l")
   (setq lsp-keymap-prefix "C-c l")
   :hook (;; replace XXX-mode with concrete major-mode(e. g. python-mode)
-		 ;; (python-mode . lsp-deferred)
-		 ;; (c-mode . lsp)
-		 ;; (c++-mode  lsp)
 		 ;; (rust-mode . lsp)
-		 ;; (go-mode . lsp)
 		 ;; if you want which-key integration
 		 (lsp-mode . lsp-enable-which-key-integration))
   :commands (lsp lsp-deferred)
-
   :config
   (setq lsp-modeline-code-actions-segments '(count name)))
 
