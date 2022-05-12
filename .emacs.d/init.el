@@ -11,6 +11,9 @@
 (setq user-emacs-directory (expand-file-name "~/.cache/emacs/")
 	  url-history-file (expand-file-name "url/history" user-emacs-directory))
 
+
+(defvar user-cache-directory (concat user-emacs-directory "~/.cache/emacs"))
+
 ;; autosave
 (setq backup-by-copying t    ; don't clobber symlinks
 	  backup-directory-alist '(("." . "~/.emacs.d/saves"))    ; don't litter my fs tree
@@ -28,7 +31,7 @@
 ;; hide startup message
 (setq-default inhibit-splash-screen t
 			  inhibit-startup-message t
-			  indent-tabs-mode t
+			  ;; indent-tabs-mode t
 			  tab-width 4
 			  c-basic-offset 4
 			  compilation-scroll-output t)
@@ -109,6 +112,7 @@
   (indent-according-to-mode))
 (global-set-key (kbd "M-<down>") 'move-line-down)
 (defun duplicate-line ()
+  "duplicate the current line"
   (interactive)
   (move-beginning-of-line 1)
   (kill-line)
@@ -121,22 +125,21 @@
   (mark-whole-buffer)
   (delete-trailing-whitespace)
   (indent-region (point-min) (point-max) nil))
+(defun unhighlight-all-in-buffer ()
+  "Remove all highlights made by `hi-lock' from the current buffer."
+  (interactive)
+  (unhighlight-regexp t))
+;; highlight / unhighlight
+(global-set-key (kbd "C-#") 'highlight-symbol-at-point)
+(global-set-key (kbd "C-*") 'unhighlight-all-in-buffer)
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Appearence
-;; setting up the font.
-;;
-;; i will load the theme after i install
-;; them as packages. not all themes are
-;; present in the themes/ directory.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; set font
 ;; WARNING: You should have Fira Code font installed
 ;; on your system. change the font or delete the following
 ;; region if you dont want to deal with it
 (set-face-attribute 'default nil
-					:family "Monospace"
+					:family "Fira Code"
 					:weight 'regular
 					:height 90)
 
@@ -147,13 +150,21 @@
 (define-key global-map "\C-l" 'Control-L-prefix)
 (fset 'Control-L-prefix ctl-l-map)
 
+
+(global-unset-key "\C-\\")
+(defvar ctl-backslash-map (make-keymap)
+  "Keymap for local bindings and functions, prefixed by \ (backslash)")
+(define-key global-map "\C-\\" 'Control-Backslash-prefix)
+(fset 'Control-Backslash-prefix ctl-backslash-map)
+
 ;; Common keybindings
-(define-key ctl-l-map "l"  'recenter-top-bottom)
-(define-key ctl-l-map "g"  'goto-line)
-(define-key ctl-l-map "R"  'replace-regexp)
-(define-key ctl-l-map "Q"  'query-replace-regexp)
-(define-key ctl-l-map "T"  'delete-trailing-whitespace)
-(define-key ctl-l-map "k"  'kill-current-buffer)
+(define-key ctl-l-map "l"   'recenter-top-bottom)
+(define-key ctl-l-map "g"   'goto-line)
+(define-key ctl-l-map "R"   'replace-regexp)
+(define-key ctl-l-map "Q"   'query-replace-regexp)
+(define-key ctl-l-map "T"   'delete-trailing-whitespace)
+(define-key ctl-l-map "k"   'kill-current-buffer)
+(define-key ctl-l-map "fr"  'fill-region)
 
 ;; Initialize package sources
 (require 'package)
@@ -163,10 +174,15 @@
 						 ("org" . "https://orgmode.org/elpa/")
 						 ("elpa" . "https://elpa.gnu.org/packages/")))
 
-
 (package-initialize)
 (unless package-archive-contents
   (package-refresh-contents))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; External Packages (use-package)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(unless (package-installed-p 'use-package)
+  (package-install 'use-package))
 
 ;;;;;;;;;;;;;;;;;;;;
 ;; load theme
@@ -179,9 +195,6 @@
 (unless (package-installed-p 'gruber-darker-theme)
   (package-install 'gruber-darker-theme))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Loading the theme
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; use this theme in graphic mode and the other if running inside a term
 ;; (if (display-graphic-p)
 ;; 	(progn
@@ -193,13 +206,9 @@
 ;; add themes directory
 (add-to-list 'custom-theme-load-path "~/.emacs.d/themes/")
 ;; load the theme
-(load-theme 'less t)
+;; (load-theme 'less t)
+(load-theme 'leyl t)
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; External Packages (use-package)
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(unless (package-installed-p 'use-package)
-  (package-install 'use-package))
 
 (use-package diminish :ensure t)
 
@@ -228,44 +237,6 @@
   :init
   (global-undo-tree-mode 1)
   (setq undo-tree-history-directory-alist '(("." . "~/.emacs.d/undo"))))
-
-;; Enable evil
-;; Extended VI Layer
-;; i still love vim btw.
-;; (use-package evil
-;;   :ensure t
-;;   :diminish
-;;   :init
-;;   (setq evil-want-integration t)
-;;   (setq evil-want-keybinding nil)
-;;   (setq evil-want-C-u-scroll t)
-;;   (setq evil-want-C-i-jump nil)
-;;   (setq evil-respect-visual-line-mode t)
-;;   (setq evil-undo-system 'undo-tree)
-
-;;   ;; Disable -- INSERT -- and such messages
-;;   (setq evil-insert-state-message nil)
-;;   (setq evil-normal-state-message nil)
-;;   (setq evil-emacs-state-message nil)
-;;   (setq evil-visual-state-message nil)
-;;   (setq evil-replace-state-message nil)
-
-;;   (setq evil-disable-insert-state-bindings t)
-
-;;   :config
-;;   (evil-mode 1)
-
-;;   (evil-emacs-state)
-;;   (define-key ctl-l-map "et" 'evil-mode) ;; toggle evil-mode
-;;   (define-key evil-emacs-state-map (kbd "M-\\") 'evil-normal-state)
-;;   ;; (define-key evil-emacs-state-map (kbd "<escape>") 'evil-normal-state)
-;;   (defadvice evil-insert-state (around emacs-state-instead-of-insert-state activate)
-;; 	(evil-emacs-state)))
-
-(use-package dired
-  :ensure nil
-  :commands (dired dired-jump)
-  :bind (("C-x C-j" . dired-jump)))
 
 (define-key ctl-l-map "dl" 'dired-find-file)
 (define-key ctl-l-map "dh" 'dired-up-directory)
@@ -328,55 +299,26 @@
   :init
   (savehist-mode))
 
-(use-package general
-  :ensure t
-  :defer t
-  :config
-  (require 'general)
-  (global-unset-key (kbd "C-\\"))
-  ;; (general-evil-setup t)
+(define-key ctl-backslash-map "tw"  'whitespace-mode)
+(define-key ctl-backslash-map "tt"  'consult-theme)
 
-  (general-create-definer usf/leader-kdef
-	;; :keymaps '(normal visual emacs)
-	;; :prefix "\\"
-	:prefix "C-\\"
-	;; :global-prefix "C-\\"
-	))
-
-(usf/leader-kdef
-  "t"  '(:ignore t :which-key "toggles")
-  "tw" 'whitespace-mode
-  "tt" '(consult-theme :which-key "choose theme"))
-
-;; e is a prefix for emacs
-;; and sometimes evil.
-(usf/leader-kdef
-  "ed" 'kill-whole-line)
-
-(usf/leader-kdef
-  ;; just like in vim
-  "gg"  'beginning-of-buffer
-  "G"   'end-of-buffer
-  ;; g=G instead of gg=G
-  "g=G" 'delete-ws-and-indent)
+(define-key ctl-backslash-map "gg"  'beginning-of-buffer)
+(define-key ctl-backslash-map "G"  'end-of-buffer)
+(define-key ctl-backslash-map "g=G"  'delete-ws-and-indent)
 
 (use-package magit
   :ensure t
   :defer t
   :commands (magit-status magit-get-current-branch))
 
-(usf/leader-kdef
-  "g"   '(:ignore t :which-key "git")
-  "gs"  'magit-status
-  "gd"  'magit-diff-unstaged
-  "gc"  'magit-branch-or-checkout
-  "gl"   '(:ignore t :which-key "log")
-  "glc" 'magit-log-current
-  "glf" 'magit-log-buffer-file
-  "gb"  'magit-branch
-  "gf"  'magit-fetch
-  "gF"  'magit-fetch-all
-  "gr"  'magit-rebase)
+(define-key ctl-backslash-map "gs"  'magit-status)
+(define-key ctl-backslash-map "gd"  'magit-diff-unstaged)
+(define-key ctl-backslash-map "glc"  'magit-log-current)
+(define-key ctl-backslash-map "glf"  'magit-log-buffer-file)
+(define-key ctl-backslash-map "gb"  'magit-branch)
+(define-key ctl-backslash-map "gf"  'magit-fetch)
+(define-key ctl-backslash-map "gF"  'magit-fetch-all)
+(define-key ctl-backslash-map "gr"  'magit-rebase)
 
 (use-package rust-mode :ensure t)
 (use-package go-mode :ensure t)
@@ -395,52 +337,40 @@
   :config
   (setq lsp-modeline-code-actions-segments '(count name)))
 
-(use-package lsp-ui
-  :ensure t
-  :after lsp
-  :defer
-  :commands lsp-ui-mode
-  :config
+;; (use-package lsp-ui
+;;   :ensure t
+;;   :after lsp
+;;   :defer
+;;   :commands lsp-ui-mode
+;;   :config
 
-  (setq lsp-ui-sideline-enable t)
-  (setq lsp-ui-doc-position 'bottom)
-  (lsp-ui-doc-show))
+;;   (setq lsp-ui-sideline-enable t)
+;;   (setq lsp-ui-doc-position 'bottom)
+;;   (lsp-ui-doc-show))
 
 (use-package flycheck
   :ensure t
   :defer t
   :hook (lsp-mode . flycheck-mode))
 
-(usf/leader-kdef
-  "ae" 'flycheck-mode)
+(define-key ctl-backslash-map "ae"  'global-flycheck-mode)
+(define-key ctl-backslash-map "aE"  'list-flycheck-errors)
 
 (use-package company
   :ensure t
   :diminish
-  :init
-  :bind
-  (:map company-active-map
-		("<tab>" . company-indent-or-complete-common)))
+  :init)
 (global-company-mode)
 
-(usf/leader-kdef
-  "l"  '(:ignore t :which-key "lsp")
-  "ld" 'xref-find-definitions
-  "lr" 'xref-find-references
-  "ln" 'lsp-ui-find-next-reference
-  "lp" 'lsp-ui-find-prev-reference
-  "ls" 'counsel-imenu
-  "le" 'lsp-ui-flycheck-list
-  "lS" 'lsp-ui-sideline-mode
-  "lX" 'lsp-execute-code-action)
-
+(define-key ctl-backslash-map "ld"  'xref-find-definitions)
+(define-key ctl-backslash-map "lr"  'xref-find-references)
+(define-key ctl-backslash-map "ls"  'consult-imenu)
 
 (use-package evil-nerd-commenter
   :ensure t
   :after evil)
 
-(usf/leader-kdef
-  "c <SPC>" 'evilnc-comment-or-uncomment-lines)
+(define-key ctl-backslash-map "c " 'evilnc-comment-or-uncomment-lines)
 
 (defun c-mode-conf ()
   (c-set-style "linux")
@@ -466,4 +396,6 @@
 		(get-buffer-window buffer 0)))
 
 (setq comment-auto-fill-only-comments t)
+
+
 (auto-fill-mode t)
