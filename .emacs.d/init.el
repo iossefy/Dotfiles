@@ -366,11 +366,10 @@
 (define-key ctl-backslash-map "lr"  'xref-find-references)
 (define-key ctl-backslash-map "ls"  'consult-imenu)
 
-(use-package evil-nerd-commenter
-  :ensure t
-  :after evil)
-
-(define-key ctl-backslash-map "c " 'evilnc-comment-or-uncomment-lines)
+;; comments
+(define-key ctl-backslash-map "c " 'comment-line)
+(define-key ctl-backslash-map "cb" 'comment-box)
+(define-key ctl-backslash-map "ca" 'comment-dwim)
 
 (defun c-mode-conf ()
   (c-set-style "linux")
@@ -396,6 +395,5 @@
 		(get-buffer-window buffer 0)))
 
 (setq comment-auto-fill-only-comments t)
-
 
 (auto-fill-mode t)
