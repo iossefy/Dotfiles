@@ -8,8 +8,7 @@ alias ls="ls --color=auto"
 alias rm="rm -i"
 
 alias vi="vim"
-alias vim="nvim"
-alias emx="emacs -nw"
+#alias vim="nvim"
 
 alias sxiv="sxiv -a"
 
@@ -49,37 +48,4 @@ function :q!() {
 function gi() {
     curl -L -s https://www.gitignore.io/api/${@}
 }
-
-# FFmpeg Stuff
-function scrncast(){
-    # record screen with audio
-    # arguments:
-    #   - output.format
-    ffmpeg -f x11grab -video_size ${RESOLUTION} -framerate 30 -i :0.0 \
-    -f pulse -i default -preset ultrafast -crf 18 -pix_fmt yuv420p ${1}
-}
-
-function scrnshot(){
-    # take a screen shot
-    # arguments
-    #   - output.format
-    ffmpeg -f x11grab -video_size ${RESOLUTION} -i ${DISPLAY} -vframes 1 ${1}
-}
-
-function webcam(){
-    # record webcam with audio
-    # arguments
-    #   - output.format
-    WEBCAM_RESOLUTION=640x480
-    ffmpeg -f v4l2 -video_size ${WEBCAM_RESOLUTION} -i /dev/video0 -f pulse \
-    -i default -c:v libx264 -preset ultrafast -c:a aac ${1}
-}
-
-function audiorec(){
-    # record audio (microphone)
-    # arguments
-    #   - output.format
-    ffmpeg -f pulse -i default ${1}
-}
-
 
