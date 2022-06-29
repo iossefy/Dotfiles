@@ -96,21 +96,38 @@
 (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
 
 ;; editor
-(defun move-line-up ()
-  "Move up the current line."
-  (interactive)
-  (transpose-lines 1)
-  (forward-line -2)
-  (indent-according-to-mode))
-(global-set-key (kbd "M-<up>") 'move-line-up)
-(defun move-line-down ()
-  "Move down the current line."
-  (interactive)
-  (forward-line 1)
-  (transpose-lines 1)
-  (forward-line -1)
-  (indent-according-to-mode))
-(global-set-key (kbd "M-<down>") 'move-line-down)
+(defun move-region-internal (arg)
+   (cond
+    ((and mark-active transient-mark-mode)
+     (if (> (point) (mark))
+            (exchange-point-and-mark))
+     (let ((column (current-column))
+              (text (delete-and-extract-region (point) (mark))))
+       (forward-line arg)
+       (move-to-column column t)
+       (set-mark (point))
+       (insert text)
+       (exchange-point-and-mark)
+       (setq deactivate-mark nil)))
+    (t
+     (beginning-of-line)
+     (when (or (> arg 0) (not (bobp)))
+       (forward-line)
+       (when (or (< arg 0) (not (eobp)))
+            (transpose-lines arg))
+       (forward-line -1)))))
+(defun move-region-down (arg)
+   "Move region (transient-mark-mode active) or current line
+  arg lines down."
+   (interactive "*p")
+   (move-region-internal arg))
+(global-set-key (kbd "M-<down>") 'move-region-down)
+(defun move-region-up (arg)
+   "Move region (transient-mark-mode active) or current line
+  arg lines up."
+   (interactive "*p")
+   (move-region-internal (- arg)))
+(global-set-key (kbd "M-<up>") 'move-region-up)
 (defun duplicate-line ()
   "duplicate the current line"
   (interactive)
@@ -165,6 +182,8 @@
 (define-key ctl-l-map "T"   'delete-trailing-whitespace)
 (define-key ctl-l-map "k"   'kill-current-buffer)
 (define-key ctl-l-map "fr"  'fill-region)
+(define-key ctl-l-map "ee"  'async-shell-command)
+(define-key ctl-l-map "er"  'shell-command-on-region)
 
 ;; Initialize package sources
 (require 'package)
@@ -188,12 +207,12 @@
 ;; load theme
 ;;;;;;;;;;;;;;;;;;;;
 
-;; solarized colors are one of my favourite colorschemes
-(unless (package-installed-p 'solarized-theme)
-  (package-install 'solarized-theme))
-;; another cool theme
-(unless (package-installed-p 'gruber-darker-theme)
-  (package-install 'gruber-darker-theme))
+;; ;; solarized colors are one of my favourite colorschemes
+;; (unless (package-installed-p 'solarized-theme)
+;;   (package-install 'solarized-theme))
+;; ;; another cool theme
+;; (unless (package-installed-p 'gruber-darker-theme)
+;;   (package-install 'gruber-darker-theme))
 
 ;; use this theme in graphic mode and the other if running inside a term
 ;; (if (display-graphic-p)
@@ -336,17 +355,6 @@
   :commands (lsp lsp-deferred)
   :config
   (setq lsp-modeline-code-actions-segments '(count name)))
-
-;; (use-package lsp-ui
-;;   :ensure t
-;;   :after lsp
-;;   :defer
-;;   :commands lsp-ui-mode
-;;   :config
-
-;;   (setq lsp-ui-sideline-enable t)
-;;   (setq lsp-ui-doc-position 'bottom)
-;;   (lsp-ui-doc-show))
 
 (use-package flycheck
   :ensure t
