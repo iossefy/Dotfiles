@@ -31,10 +31,11 @@
 ;; hide startup message
 (setq-default inhibit-splash-screen t
 			  inhibit-startup-message t
-			  ;; indent-tabs-mode t
+			  indent-tabs-mode nil
 			  tab-width 4
 			  c-basic-offset 4
-			  compilation-scroll-output t)
+			  compilation-scroll-output t
+			  fill-column 80)
 
 ;; this sets HTML tab to 4 spaces (2 spaces is nice, 4 is ugly)
 ;; (defvaralias 'sgml-basic-offset 'tab-width)
@@ -378,6 +379,12 @@
 (define-key ctl-backslash-map "c " 'comment-line)
 (define-key ctl-backslash-map "cb" 'comment-box)
 (define-key ctl-backslash-map "ca" 'comment-dwim)
+
+;; Highlight Codetags
+(add-hook 'prog-mode-hook
+          (lambda ()
+            (font-lock-add-keywords nil
+                                    '(("\\<\\(FIXME\\|XXX\\|DEBUG\\|BUG\\|TODO\\|WTF\\|HACK\\|REFERENCE\\|WONTFIX\\|NOTE\\):" 1 font-lock-warning-face t)))))
 
 (defun c-mode-conf ()
   (c-set-style "linux")
