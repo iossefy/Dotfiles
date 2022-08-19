@@ -2,6 +2,11 @@
 
 ;; Author: Youssef Hesham <m1cr0xf7>
 
+(setq package-enable-at-startup nil)
+
+;; Speed up startup
+(setq auto-mode-case-fold nil)
+
 ;; Startup Performace
 ;; The default is 800 kb. measured in bytes
 (setq gc-cons-threshold (* 50 1000 1000))
@@ -10,7 +15,6 @@
 ;; change the user-emacs-directory to keep unwanted things out of ~/.emacs.d
 (setq user-emacs-directory (expand-file-name "~/.cache/emacs/")
 	  url-history-file (expand-file-name "url/history" user-emacs-directory))
-
 
 (defvar user-cache-directory (concat user-emacs-directory "~/.cache/emacs"))
 
@@ -151,6 +155,10 @@
 (global-set-key (kbd "C-#") 'highlight-symbol-at-point)
 (global-set-key (kbd "C-*") 'unhighlight-all-in-buffer)
 
+;; go to the beginning and the end of current buffer
+(global-set-key (kbd "C-{") 'beginning-of-buffer)
+(global-set-key (kbd "C-}") 'end-of-buffer)
+
 
 ;; set font
 ;; WARNING: You should have Fira Code font installed
@@ -258,13 +266,12 @@
   (global-undo-tree-mode 1)
   (setq undo-tree-history-directory-alist '(("." . "~/.emacs.d/undo"))))
 
-(define-key ctl-l-map "dl" 'dired-find-file)
-(define-key ctl-l-map "dh" 'dired-up-directory)
-(define-key ctl-l-map "dd" 'dired-do-delete)
-(define-key ctl-l-map "dM" 'dired-do-chmod)
-(define-key ctl-l-map "dt" 'dired-do-touch)
-(define-key ctl-l-map "dr" 'dired-do-rename)
-(define-key ctl-l-map "dD" 'dired-create-directory)
+(define-key ctl-backslash-map "dl" 'dired-find-file)
+(define-key ctl-backslash-map "dh" 'dired-up-directory)
+(define-key ctl-backslash-map "dd" 'dired-do-delete)
+(define-key ctl-backslash-map "dM" 'dired-do-chmod)
+(define-key ctl-backslash-map "dt" 'dired-do-touch)
+(define-key ctl-backslash-map "dr" 'dired-do-rename)
 
 ;; marking
 (global-set-key (kbd "C-M-, m") 'mark-sexp)
@@ -384,7 +391,7 @@
 (add-hook 'prog-mode-hook
           (lambda ()
             (font-lock-add-keywords nil
-                                    '(("\\<\\(FIXME\\|XXX\\|DEBUG\\|BUG\\|TODO\\|WTF\\|HACK\\|REFERENCE\\|WONTFIX\\|NOTE\\):" 1 font-lock-warning-face t)))))
+                                    '(("\\<\\(FIXME\\|XXX\\|DEBUG\\|BUG\\|TODO\\|HACK\\|REFERENCE\\|WONTFIX\\|NOTE\\):" 1 font-lock-warning-face t)))))
 
 (defun c-mode-conf ()
   (c-set-style "linux")
