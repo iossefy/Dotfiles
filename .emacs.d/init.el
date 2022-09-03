@@ -193,6 +193,7 @@
 (define-key ctl-l-map "fr"  'fill-region)
 (define-key ctl-l-map "ee"  'async-shell-command)
 (define-key ctl-l-map "er"  'shell-command-on-region)
+(define-key ctl-l-map "m"   'mark-sexp)
 
 ;; Initialize package sources
 (require 'package)
@@ -273,9 +274,6 @@
 (define-key ctl-backslash-map "dt" 'dired-do-touch)
 (define-key ctl-backslash-map "dr" 'dired-do-rename)
 
-;; marking
-(global-set-key (kbd "C-M-, m") 'mark-sexp)
-(global-set-key (kbd "C-M-, w") 'mark-word)
 (global-set-key (kbd "C-,") 'duplicate-line)
 ;; easier way to navigate
 (global-set-key (kbd "M-[") 'backward-paragraph)
