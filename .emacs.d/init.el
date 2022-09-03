@@ -1,5 +1,4 @@
 ;; -*- lexical-binding: t -*-
-
 ;; Author: Youssef Hesham <m1cr0xf7>
 
 (setq package-enable-at-startup nil)
@@ -154,6 +153,20 @@
 ;; highlight / unhighlight
 (global-set-key (kbd "C-#") 'highlight-symbol-at-point)
 (global-set-key (kbd "C-*") 'unhighlight-all-in-buffer)
+(defun kill-thing-at-point (thing)
+  "Kill the `thing-at-point' for the specified kind of THING."
+  (let ((bounds (bounds-of-thing-at-point thing)))
+    (if bounds
+        (kill-region (car bounds) (cdr bounds))
+      (error "No %s at point" thing))))
+(defun kill-symbol-at-point ()
+  "Kill symbol at point."
+  (interactive)
+  (kill-thing-at-point 'symbol))
+(defun kill-word-at-point ()
+  "Kill word at point."
+  (interactive)
+  (kill-thing-at-point 'word))
 
 ;; go to the beginning and the end of current buffer
 (global-set-key (kbd "C-{") 'beginning-of-buffer)
@@ -167,7 +180,7 @@
 (set-face-attribute 'default nil
 					:family "Fira Code"
 					:weight 'regular
-					:height 90)
+					:height 100)
 
 ;; keybindings emacs way
 (global-unset-key "\C-l")
@@ -194,6 +207,8 @@
 (define-key ctl-l-map "ee"  'async-shell-command)
 (define-key ctl-l-map "er"  'shell-command-on-region)
 (define-key ctl-l-map "m"   'mark-sexp)
+(define-key ctl-l-map "dd"   'kill-symbol-at-point)
+(define-key ctl-l-map "dw"   'kill-word-at-point)
 
 ;; Initialize package sources
 (require 'package)
