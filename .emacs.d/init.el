@@ -391,14 +391,6 @@
             (font-lock-add-keywords nil
                                     '(("\\<\\(FIXME\\|XXX\\|DEBUG\\|BUG\\|TODO\\|HACK\\|REFERENCE\\|WONTFIX\\|NOTE\\):" 1 font-lock-warning-face t)))))
 
-(defun c-mode-conf ()
-  (c-set-style "linux")
-  (setq c-basic-offset 4))
-
-(add-hook 'c-mode-hook 'c-mode-conf)
-
-(require 'compile)
-
 (define-key ctl-l-map "cc" 'compile)
 (define-key ctl-l-map "cr" 'recompile)
 
