@@ -33,12 +33,16 @@
 
 ;; hide startup message
 (setq-default inhibit-splash-screen t
-			  inhibit-startup-message t
-			  indent-tabs-mode nil
-			  tab-width 4
-			  c-basic-offset 4
-			  compilation-scroll-output t
-			  fill-column 80)
+			  inhibit-startup-message t)
+
+(setq indent-tabs-mode nil
+      tab-width 4
+      c-basic-offset 4
+      compilation-scroll-output t
+      fill-column 80
+      ;; isearch
+      isearch-repeat-on-direction-change t
+      isearch-wrap-pause 'no-ding)
 
 ;; this sets HTML tab to 4 spaces (2 spaces is nice, 4 is ugly)
 ;; (defvaralias 'sgml-basic-offset 'tab-width)
@@ -101,36 +105,36 @@
 
 ;; editor
 (defun move-region-internal (arg)
-   (cond
-    ((and mark-active transient-mark-mode)
-     (if (> (point) (mark))
-            (exchange-point-and-mark))
-     (let ((column (current-column))
-              (text (delete-and-extract-region (point) (mark))))
-       (forward-line arg)
-       (move-to-column column t)
-       (set-mark (point))
-       (insert text)
-       (exchange-point-and-mark)
-       (setq deactivate-mark nil)))
-    (t
-     (beginning-of-line)
-     (when (or (> arg 0) (not (bobp)))
-       (forward-line)
-       (when (or (< arg 0) (not (eobp)))
-            (transpose-lines arg))
-       (forward-line -1)))))
+  (cond
+   ((and mark-active transient-mark-mode)
+    (if (> (point) (mark))
+        (exchange-point-and-mark))
+    (let ((column (current-column))
+          (text (delete-and-extract-region (point) (mark))))
+      (forward-line arg)
+      (move-to-column column t)
+      (set-mark (point))
+      (insert text)
+      (exchange-point-and-mark)
+      (setq deactivate-mark nil)))
+   (t
+    (beginning-of-line)
+    (when (or (> arg 0) (not (bobp)))
+      (forward-line)
+      (when (or (< arg 0) (not (eobp)))
+        (transpose-lines arg))
+      (forward-line -1)))))
 (defun move-region-down (arg)
-   "Move region (transient-mark-mode active) or current line
+  "Move region (transient-mark-mode active) or current line
   arg lines down."
-   (interactive "*p")
-   (move-region-internal arg))
+  (interactive "*p")
+  (move-region-internal arg))
 (global-set-key (kbd "M-<down>") 'move-region-down)
 (defun move-region-up (arg)
-   "Move region (transient-mark-mode active) or current line
+  "Move region (transient-mark-mode active) or current line
   arg lines up."
-   (interactive "*p")
-   (move-region-internal (- arg)))
+  (interactive "*p")
+  (move-region-internal (- arg)))
 (global-set-key (kbd "M-<up>") 'move-region-up)
 (defun duplicate-line ()
   "duplicate the current line"
@@ -167,6 +171,11 @@
   "Kill word at point."
   (interactive)
   (kill-thing-at-point 'word))
+(defun kill-other-buffers ()
+  "Kill all other buffers. except the current one."
+  (interactive)
+  (mapc 'kill-buffer (delq (current-buffer) (buffer-list))))
+
 
 ;; go to the beginning and the end of current buffer
 (global-set-key (kbd "C-{") 'beginning-of-buffer)
@@ -251,6 +260,7 @@
 (add-to-list 'custom-theme-load-path "~/.emacs.d/themes/")
 ;; load the theme
 ;; (load-theme 'less t)
+;; (load-theme 'modus-vivendi t)
 (load-theme 'leyl t)
 
 
@@ -342,40 +352,33 @@
 (define-key ctl-backslash-map "tw"  'whitespace-mode)
 (define-key ctl-backslash-map "tt"  'consult-theme)
 
-(define-key ctl-backslash-map "gg"  'beginning-of-buffer)
-(define-key ctl-backslash-map "G"  'end-of-buffer)
-(define-key ctl-backslash-map "g=G"  'delete-ws-and-indent)
-
 (use-package magit
   :ensure t
   :defer t
   :commands (magit-status magit-get-current-branch))
 
-(define-key ctl-backslash-map "gs"  'magit-status)
-(define-key ctl-backslash-map "gd"  'magit-diff-unstaged)
+(define-key ctl-backslash-map "gs"   'magit-status)
+(define-key ctl-backslash-map "gd"   'magit-diff-unstaged)
 (define-key ctl-backslash-map "glc"  'magit-log-current)
 (define-key ctl-backslash-map "glf"  'magit-log-buffer-file)
-(define-key ctl-backslash-map "gb"  'magit-branch)
-(define-key ctl-backslash-map "gf"  'magit-fetch)
-(define-key ctl-backslash-map "gF"  'magit-fetch-all)
-(define-key ctl-backslash-map "gr"  'magit-rebase)
+(define-key ctl-backslash-map "gb"   'magit-branch)
 
 (use-package rust-mode :ensure t)
 (use-package go-mode :ensure t)
 
-(use-package lsp-mode
-  :ensure t
-  :defer
-  ;; :init
-  ;; set prefix for lsp-command-keymap (few alternatives - "C-l", "C-c l")
-  (setq lsp-keymap-prefix "C-c l")
-  :hook (;; replace XXX-mode with concrete major-mode(e. g. python-mode)
-		 ;; (rust-mode . lsp)
-		 ;; if you want which-key integration
-		 (lsp-mode . lsp-enable-which-key-integration))
-  :commands (lsp lsp-deferred)
-  :config
-  (setq lsp-modeline-code-actions-segments '(count name)))
+;; (use-package lsp-mode
+;;   :ensure t
+;;   :defer
+;;   ;; :init
+;;   ;; set prefix for lsp-command-keymap (few alternatives - "C-l", "C-c l")
+;;   (setq lsp-keymap-prefix "C-c l")
+;;   :hook (;; replace XXX-mode with concrete major-mode(e. g. python-mode)
+;; 		 ;; (rust-mode . lsp)
+;; 		 ;; if you want which-key integration
+;; 		 (lsp-mode . lsp-enable-which-key-integration))
+;;   :commands (lsp lsp-deferred)
+;;   :config
+;;   (setq lsp-modeline-code-actions-segments '(count name)))
 
 (use-package flycheck
   :ensure t
