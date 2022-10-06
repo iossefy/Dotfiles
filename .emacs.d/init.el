@@ -216,8 +216,10 @@
 (define-key ctl-l-map "ee"  'async-shell-command)
 (define-key ctl-l-map "er"  'shell-command-on-region)
 (define-key ctl-l-map "m"   'mark-sexp)
-(define-key ctl-l-map "dd"   'kill-symbol-at-point)
-(define-key ctl-l-map "dw"   'kill-word-at-point)
+(define-key ctl-l-map "dd"  'kill-symbol-at-point)
+(define-key ctl-l-map "dw"  'kill-word-at-point)
+
+(define-key ctl-backslash-map "m" 'man)
 
 ;; Initialize package sources
 (require 'package)
@@ -303,6 +305,9 @@
 ;; easier way to navigate
 (global-set-key (kbd "M-[") 'backward-paragraph)
 (global-set-key (kbd "M-]") 'forward-paragraph)
+
+
+(global-set-key (kbd "M-s s") 'isearch-forward)
 
 ;; Example configuration for Consult
 (use-package consult
