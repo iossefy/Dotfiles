@@ -1,31 +1,7 @@
 # Some PATH Variables and exports
 PATH="$HOME/.cargo/bin:$PATH"
-# PATH="$(ruby -e 'print Gem.user_dir')/bin:$PATH"
-# PATH="$HOME/.node_modules/bin:$PATH"
 PATH="$HOME/.local/bin:$PATH"
 PATH="$HOME/.scripts/bin:$PATH"
-
-
-PATH="$HOME/.local/go/bin:$PATH"
-
-
-PS1="%{$fg[white]%}[%{$fg[cyan]%}%~%{$fg[white]%}]-> %(?,,%{$fg[white]%}[%{$fg_bold[white]%}%?%{$reset_color%}%{$fg[white]%}])
-%{$fg_bold[blue]%};%{$reset_color%} "
-
-PS2="%{$fg[green]%}\\>%{$reset_color%} "
-
-## History file configuration
-[ -z "$HISTFILE" ] && HISTFILE="$HOME/.zsh_history"
-[ "$HISTSIZE" -lt 50000 ] && HISTSIZE=50000
-[ "$SAVEHIST" -lt 10000 ] && SAVEHIST=10000
-
-# common variables
-# export CC=gcc
-# export AS=as
-# export AR=ar
-# export CXX=g++
-# export LD=ld
-# export TAR=tar
 
 # XDG stuff
 export XDG_DESKTOP_DIR="$HOME/Desktop"
@@ -42,10 +18,8 @@ export EDITOR="vim"
 export GOPATH=$HOME/.local/go
 export GOBIN=$HOME/.local/go/bin
 export BROWSER="firefox-bin"
-export LIBGL_ALWAYS_SOFTWARE=on
-export XDG_CURRENT_DESKTOP='X-Generic'
-# export QT_X11_NO_MITSHM=1 # fixes the issue when opening qt app with sudo
+# export LIBGL_ALWAYS_SOFTWARE=on
+# export XDG_CURRENT_DESKTOP='X-Generic'
+
 export PATH
-export npm_config_prefix=~/.node_modules
-export GEM_HOME=$HOME/.gem
 export PROMPT

@@ -4,6 +4,8 @@
 # or the script will not wor
 BROWSER=firefox-bin
 engine="https://duckduckgo.com/?q="
+
+
 query=$(printf "%s" |dmenu -p "Search DuckDuckGo:")
 
 # Go to the website directly if the scheme

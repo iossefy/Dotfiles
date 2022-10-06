@@ -7,16 +7,9 @@ alias egrep='egrep --color=auto'
 alias ls="ls --color=auto"
 alias rm="rm -i"
 
-alias vi="vim"
-#alias vim="nvim"
-
-alias sxiv="sxiv -a"
-
-alias nse="ls /usr/share/nmap/scripts/|grep "
-
 alias glog="git log --color --all --date-order --decorate --dirstat=lines,cumulative --stat|less -R"
 
-alias mp3-dl="youtube-dl --extract-audio --audio-format mp3"
+# alias mp3-dl="youtube-dl --extract-audio --audio-format mp3"
 
 function stopwatch(){
   date1=`date +%s`;
