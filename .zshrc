@@ -1,4 +1,3 @@
-LANG=en_US.UTF-8
 # If not running interactively, don't do anything
 [[ $- != *i* ]] && return
 
@@ -21,7 +20,7 @@ setopt hist_ignore_space      # ignore commands that start with space
 setopt extended_history       # record timestamp of command in HISTFILE
 setopt -o sharehistory
 setopt INC_APPEND_HISTORY
-#setopt interactivecomments
+setopt interactivecomments
 
 zstyle ':completion::complete:*' use-cache 1
 
@@ -57,11 +56,27 @@ setopt auto_menu # show completion menu on successive tab press. needs unsetop m
 #setopt auto_name_dirs # any parameter that is set to the absolute name of a directory immediately becomes a name for that directory
 setopt complete_in_word # Allow completion from within a word/phrase
 
+# ignore duplicates
+setopt histignorealldups
+
 unsetopt menu_complete # do not autoselect the first completion entry
 
 # ===== Correction
 #unsetopt correct_all # spelling correction for arguments
 #setopt correct # spelling correction for commands
+
+
+# Set PS1 & PS2
+PS1="%{$fg[white]%}[%{$fg[cyan]%}%~%{$fg[white]%}]-> %(?,,%{$fg[white]%}[%{$fg_bold[white]%}%?%{$reset_color%}%{$fg[white]%}])
+%{$fg_bold[blue]%};%{$reset_color%} "
+
+PS2="%{$fg[green]%}\\>%{$reset_color%} "
+
+## History file configuration
+[ -z "$HISTFILE" ] && HISTFILE="$HOME/.zsh_history"
+[ "$HISTSIZE" -lt 50000 ] && HISTSIZE=50000
+[ "$SAVEHIST" -lt 10000 ] && SAVEHIST=10000
+
 
 # exports
 source $HOME/.scripts/zsh/exports.sh
