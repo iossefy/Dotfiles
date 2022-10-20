@@ -13,27 +13,27 @@
 (setq read-process-output-max (* 1024 1024)) ;; 1mb
 ;; change the user-emacs-directory to keep unwanted things out of ~/.emacs.d
 (setq user-emacs-directory (expand-file-name "~/.cache/emacs/")
-	  url-history-file (expand-file-name "url/history" user-emacs-directory))
+      url-history-file (expand-file-name "url/history" user-emacs-directory))
 
 (defvar user-cache-directory (concat user-emacs-directory "~/.cache/emacs"))
 
 ;; autosave
 (setq backup-by-copying t    ; don't clobber symlinks
-	  backup-directory-alist '(("." . "~/.emacs.d/saves"))    ; don't litter my fs tree
-	  delete-old-versions t
-	  kept-new-versions 6
-	  kept-old-versions 2
-	  version-control t
-	  create-lockfiles nil)
+      backup-directory-alist '(("." . "~/.emacs.d/saves"))	  ; don't litter my fs tree
+      delete-old-versions t
+      kept-new-versions 6
+      kept-old-versions 2
+      version-control t
+      create-lockfiles nil)
 (setq auto-save-file-name-transforms
-	  `((".*" "~/.emacs.d/saves" t)))
+      `((".*" "~/.emacs.d/saves" t)))
 
 ;; avoid silly errors
 (set-default-coding-systems 'utf-8)
 
 ;; hide startup message
 (setq-default inhibit-splash-screen t
-			  inhibit-startup-message t)
+	      inhibit-startup-message t)
 
 (setq indent-tabs-mode nil
       tab-width 4
@@ -43,6 +43,8 @@
       ;; isearch
       isearch-repeat-on-direction-change t
       isearch-wrap-pause 'no-ding)
+
+(setq confirm-kill-emacs 'y-or-n-p)
 
 ;; this sets HTML tab to 4 spaces (2 spaces is nice, 4 is ugly)
 ;; (defvaralias 'sgml-basic-offset 'tab-width)
@@ -54,21 +56,21 @@
 ;; Use relative numbers only in GUI
 ;; relative numbers cause unpleasant flickering in terminal emacs.
 (if (display-graphic-p)
-	(progn
-	  (setq display-line-numbers-type 'relative)))
+    (progn
+      (setq display-line-numbers-type 'relative)))
 
 ;; disable line numbers in these modes
 (dolist (mode '(org-mode-hook
-				term-mode-hook
-				Man-mode-hook
-				woman-mode-hook
-				shell-mode-hook
-				eshell-mode-hook))
+		term-mode-hook
+		Man-mode-hook
+		woman-mode-hook
+		shell-mode-hook
+		eshell-mode-hook))
   (add-hook mode (lambda () (display-line-numbers-mode 0))))
 
 ;; custom modeline (time-format)
 (setq display-time-format "%l:%M: %p %b %y"
-	  display-time-default-load-average nil)
+      display-time-default-load-average nil)
 
 ;; hide scrollbar, menubar and toolbar. highlight braces
 (tool-bar-mode 0)
@@ -84,11 +86,11 @@
 
 ;; Do not allow the cursor in the minibuffer prompt
 (setq minibuffer-prompt-properties
-	  '(read-only t cursor-intangible t face minibuffer-prompt))
+      '(read-only t cursor-intangible t face minibuffer-prompt))
 (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)
 ;; Emacs 28: Hide commands in M-x which do not work in the current mode.
 (setq read-extended-command-predicate
-	  #'command-completion-default-include-p)
+      #'command-completion-default-include-p)
 
 ;; mouse config
 (setq mouse-wheel-scroll-amount '(1 ((shift) . 1))) ; one line at a time
@@ -108,9 +110,9 @@
   (cond
    ((and mark-active transient-mark-mode)
     (if (> (point) (mark))
-        (exchange-point-and-mark))
+	(exchange-point-and-mark))
     (let ((column (current-column))
-          (text (delete-and-extract-region (point) (mark))))
+	  (text (delete-and-extract-region (point) (mark))))
       (forward-line arg)
       (move-to-column column t)
       (set-mark (point))
@@ -122,7 +124,7 @@
     (when (or (> arg 0) (not (bobp)))
       (forward-line)
       (when (or (< arg 0) (not (eobp)))
-        (transpose-lines arg))
+	(transpose-lines arg))
       (forward-line -1)))))
 (defun move-region-down (arg)
   "Move region (transient-mark-mode active) or current line
@@ -161,7 +163,7 @@
   "Kill the `thing-at-point' for the specified kind of THING."
   (let ((bounds (bounds-of-thing-at-point thing)))
     (if bounds
-        (kill-region (car bounds) (cdr bounds))
+	(kill-region (car bounds) (cdr bounds))
       (error "No %s at point" thing))))
 (defun kill-symbol-at-point ()
   "Kill symbol at point."
@@ -187,9 +189,11 @@
 ;; on your system. change the font or delete the following
 ;; region if you dont want to deal with it
 (set-face-attribute 'default nil
-					:family "Fira Code"
-					:weight 'regular
-					:height 100)
+		    :family "Fira Code"
+		    :weight 'regular
+		    :height 100)
+
+(set-fontset-font t 'arabic "Noto Sans Arabic UI")
 
 ;; keybindings emacs way
 (global-unset-key "\C-l")
@@ -225,9 +229,9 @@
 (require 'package)
 
 (setq package-archives '(("melpa" . "https://melpa.org/packages/")
-						 ("melpa-stable" . "https://stable.melpa.org/packages/")
-						 ("org" . "https://orgmode.org/elpa/")
-						 ("elpa" . "https://elpa.gnu.org/packages/")))
+			 ("melpa-stable" . "https://stable.melpa.org/packages/")
+			 ("org" . "https://orgmode.org/elpa/")
+			 ("elpa" . "https://elpa.gnu.org/packages/")))
 
 (package-initialize)
 (unless package-archive-contents
@@ -252,9 +256,9 @@
 
 ;; use this theme in graphic mode and the other if running inside a term
 ;; (if (display-graphic-p)
-;; 	(progn
-;; 	  ;; if graphic
-;; 	  (load-theme 'solarized-dark t))
+;;	(progn
+;;	  ;; if graphic
+;;	  (load-theme 'solarized-dark t))
 ;;   ;; else (inside terminal?)
 ;;   (load-theme 'gruber-darker t))
 
@@ -277,8 +281,8 @@
   (add-hook 'prog-mode-hook #'yas-minor-mode)
   (diminish 'yas-minor-mode)
   (defun yasnippet-snippets--fixed-indent ()
-	"Set `yas-indent-line' to `fixed'."
-	(set (make-local-variable 'yas-indent-line) 'fixed)))
+    "Set `yas-indent-line' to `fixed'."
+    (set (make-local-variable 'yas-indent-line) 'fixed)))
 
 (use-package which-key
   :ensure t
@@ -313,28 +317,28 @@
 (use-package consult
   :ensure t
   :bind (
-		 ;; C-x bindings (ctl-x-map)
-		 ("C-x b" . consult-buffer)                ;; orig. switch-to-buffer
-		 ("C-x 4 b" . consult-buffer-other-window) ;; orig. switch-to-buffer-other-window
-		 ("C-x 5 b" . consult-buffer-other-frame)  ;; orig. switch-to-buffer-other-frame
-		 ("C-x p b" . consult-project-buffer)      ;; orig. project-switch-to-buffer
-		 ;; M-g bindings (goto-map)
-		 ("M-g g" . consult-goto-line)             ;; orig. goto-line
-		 ("M-g m" . consult-mark)
-		 ("M-g k" . consult-global-mark)
-		 ("M-g i" . consult-imenu)
-		 ("M-g I" . consult-imenu-multi)
-		 ;; M-s bindings (search-map)
-		 ("M-s g" . consult-grep)
-		 ("C-s" . consult-line)
-		 ("M-s L" . consult-line-multi))
+	 ;; C-x bindings (ctl-x-map)
+	 ("C-x b" . consult-buffer)		   ;; orig. switch-to-buffer
+	 ("C-x 4 b" . consult-buffer-other-window) ;; orig. switch-to-buffer-other-window
+	 ("C-x 5 b" . consult-buffer-other-frame)  ;; orig. switch-to-buffer-other-frame
+	 ("C-x p b" . consult-project-buffer)	   ;; orig. project-switch-to-buffer
+	 ;; M-g bindings (goto-map)
+	 ("M-g g" . consult-goto-line)		   ;; orig. goto-line
+	 ("M-g m" . consult-mark)
+	 ("M-g k" . consult-global-mark)
+	 ("M-g i" . consult-imenu)
+	 ("M-g I" . consult-imenu-multi)
+	 ;; M-s bindings (search-map)
+	 ("M-s g" . consult-grep)
+	 ("C-s" . consult-line)
+	 ("M-s L" . consult-line-multi))
   ;; Enable automatic preview at point in the *Completions* buffer. This is
   ;; relevant when you use the default completion UI.
   :hook (completion-list-mode . consult-preview-at-point-mode)
   :init
   ;; Use Consult to select xref locations with preview
   (setq xref-show-xrefs-function #'consult-xref
-		xref-show-definitions-function #'consult-xref))
+	xref-show-definitions-function #'consult-xref))
 
 ;; Enable vertico
 (use-package vertico
@@ -346,8 +350,8 @@
   :ensure t
   :init
   (setq completion-styles '(orderless)
-		completion-category-defaults nil
-		completion-category-overrides '((file (styles partial-completion)))))
+	completion-category-defaults nil
+	completion-category-overrides '((file (styles partial-completion)))))
 
 (use-package savehist
   :ensure t
@@ -378,9 +382,9 @@
 ;;   ;; set prefix for lsp-command-keymap (few alternatives - "C-l", "C-c l")
 ;;   (setq lsp-keymap-prefix "C-c l")
 ;;   :hook (;; replace XXX-mode with concrete major-mode(e. g. python-mode)
-;; 		 ;; (rust-mode . lsp)
-;; 		 ;; if you want which-key integration
-;; 		 (lsp-mode . lsp-enable-which-key-integration))
+;;		 ;; (rust-mode . lsp)
+;;		 ;; if you want which-key integration
+;;		 (lsp-mode . lsp-enable-which-key-integration))
 ;;   :commands (lsp lsp-deferred)
 ;;   :config
 ;;   (setq lsp-modeline-code-actions-segments '(count name)))
@@ -410,9 +414,19 @@
 
 ;; Highlight Codetags
 (add-hook 'prog-mode-hook
-          (lambda ()
-            (font-lock-add-keywords nil
-                                    '(("\\<\\(FIXME\\|XXX\\|DEBUG\\|BUG\\|TODO\\|HACK\\|REFERENCE\\|WONTFIX\\|NOTE\\):" 1 font-lock-warning-face t)))))
+	  (lambda ()
+	    (font-lock-add-keywords nil
+				    '(("\\<\\(FIXME\\|XXX\\|DEBUG\\|BUG\\|TODO\\|HACK\\|REFERENCE\\|WONTFIX\\|NOTE\\):" 1 font-lock-warning-face t)))))
+
+;; ;; Whitespace style
+(setq whitespace-style '(face
+			 tabs
+			 spaces
+			 trailing
+			 space-mark
+			 ;; newline
+			 indentation
+			 tab-mark))
 
 (define-key ctl-l-map "cc" 'compile)
 (define-key ctl-l-map "cr" 'recompile)
@@ -421,13 +435,13 @@
 ;; to the buffer automatically
 ;; without any fancy splits or anything
 (setq special-display-buffer-names
-	  '("*compilation*"))
+      '("*compilation*"))
 
 (setq special-display-function
-	  (lambda (buffer &optional args)
-		;; (split-window)
-		(switch-to-buffer buffer)
-		(get-buffer-window buffer 0)))
+      (lambda (buffer &optional args)
+	;; (split-window)
+	(switch-to-buffer buffer)
+	(get-buffer-window buffer 0)))
 
 (setq comment-auto-fill-only-comments t)
 
