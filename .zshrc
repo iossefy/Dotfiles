@@ -4,13 +4,21 @@
 autoload -U colors && colors
 autoload -Uz compinit
 
-
 autoload -U compinit promptinit
 compinit
 promptinit; prompt gentoo
 
 bindkey -v
 bindkey '^R' history-incremental-search-backward
+# emacs lol
+bindkey '^A' beginning-of-line
+bindkey '^E' end-of-line
+bindkey '^ ' visual-mode
+bindkey '^W' kill-region
+bindkey '^Y' yank
+bindkey '^_' undo
+bindkey '^f' forward-word
+bindkey '^b' backward-word
 
 
 zstyle ':completion:*' menu select
@@ -60,11 +68,6 @@ setopt complete_in_word # Allow completion from within a word/phrase
 setopt histignorealldups
 
 unsetopt menu_complete # do not autoselect the first completion entry
-
-# ===== Correction
-#unsetopt correct_all # spelling correction for arguments
-#setopt correct # spelling correction for commands
-
 
 # Set PS1 & PS2
 PS1="%{$fg[white]%}[%{$fg[cyan]%}%~%{$fg[white]%}]-> %(?,,%{$fg[white]%}[%{$fg_bold[white]%}%?%{$reset_color%}%{$fg[white]%}])
