@@ -21,5 +21,8 @@ export BROWSER="firefox-bin"
 # export LIBGL_ALWAYS_SOFTWARE=on
 # export XDG_CURRENT_DESKTOP='X-Generic'
 
+
+export NNN_OPTS="Cg"
+
 export PATH
 export PROMPT

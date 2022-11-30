@@ -28,15 +28,6 @@ function open() {
         &  disown;
 }
 
-# Vim every where
-function :q() {
-    exit 0
-}
-
-function :q!() {
-    exit 1
-}
-
 # creates ignore files for git
 function gi() {
     curl -L -s https://www.gitignore.io/api/${@}

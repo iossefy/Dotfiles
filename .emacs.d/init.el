@@ -40,11 +40,9 @@
       c-basic-offset 4
       compilation-scroll-output t
       fill-column 80
-      ;; isearch
       isearch-repeat-on-direction-change t
       isearch-wrap-pause 'no-ding)
 
-(setq confirm-kill-emacs 'y-or-n-p)
 
 ;; this sets HTML tab to 4 spaces (2 spaces is nice, 4 is ugly)
 ;; (defvaralias 'sgml-basic-offset 'tab-width)
@@ -189,7 +187,7 @@
 ;; on your system. change the font or delete the following
 ;; region if you dont want to deal with it
 (set-face-attribute 'default nil
-		    :family "Fira Code"
+		    :family "monospace"
 		    :weight 'regular
 		    :height 100)
 
