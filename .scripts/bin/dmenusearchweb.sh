@@ -1,12 +1,14 @@
-#!/usr/bin/env bash
+#!/bin/sh
 # Search the web
-# $BROWSER env variable must be set
-# or the script will not wor
-BROWSER=firefox-bin
+
 engine="https://duckduckgo.com/?q="
 
+if [ -z $BROWSER ];
+then
+    BROWSER=firefox-bin
+fi
 
-query=$(printf "%s" |dmenu -p "Search DuckDuckGo:")
+query=$(printf "%s" | dmenu -p "Search DuckDuckGo ")
 
 # Go to the website directly if the scheme
 # is provided
@@ -22,5 +24,18 @@ esac
 # Search using duckduckgo
 if [ ! -z "$query" ]
 then
-    $BROWSER "${engine}${query}"
+    case $BROWSER in
+	# Special case for chrome
+	"chromium-bin")
+	    $BROWSER --new-tab "${engine}${query}" &disown #
+	    exit 0
+            ;;
+	*)
+	    $BROWSER "${engine}${query}"
+	    ;;
+
+    esac
+
 fi
+
+exit 0
