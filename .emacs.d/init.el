@@ -187,11 +187,12 @@
 ;; on your system. change the font or delete the following
 ;; region if you dont want to deal with it
 (set-face-attribute 'default nil
-		    :family "monospace"
+		    :family "fira code"
 		    :weight 'regular
 		    :height 100)
 
 (set-fontset-font t 'arabic "Noto Sans Arabic UI")
+
 
 ;; keybindings emacs way
 (global-unset-key "\C-l")
@@ -199,6 +200,22 @@
   "Keymap for local bindings and functions, prefixed by (^L)")
 (define-key global-map "\C-l" 'Control-L-prefix)
 (fset 'Control-L-prefix ctl-l-map)
+
+
+;; keybindings emacs way
+(global-unset-key "\C-z")
+(defvar ctl-z-map (make-keymap)
+  "Keymap for local bindings and functions, prefixed by (^Z)")
+(define-key global-map "\C-z" 'Control-Z-prefix)
+(fset 'Control-Z-prefix ctl-z-map)
+
+(define-key ctl-z-map "z"   'suspend-frame)
+(define-key ctl-z-map "u"   'undo-redo)
+(define-key ctl-z-map "r"   'undo)
+(define-key ctl-z-map "ds"   'kill-symbol-at-point)
+(define-key ctl-z-map "dw"   'kill-word-at-point)
+(define-key ctl-z-map "dd"   'kill-whole-line)
+
 
 
 (global-unset-key "\C-\\")
@@ -218,8 +235,6 @@
 (define-key ctl-l-map "ee"  'async-shell-command)
 (define-key ctl-l-map "er"  'shell-command-on-region)
 (define-key ctl-l-map "m"   'mark-sexp)
-(define-key ctl-l-map "dd"  'kill-symbol-at-point)
-(define-key ctl-l-map "dw"  'kill-word-at-point)
 
 (define-key ctl-backslash-map "m" 'man)
 
@@ -400,6 +415,8 @@
   :diminish
   :init)
 (global-company-mode)
+(define-key ctl-z-map " "  'company-complete)
+
 
 (define-key ctl-backslash-map "ld"  'xref-find-definitions)
 (define-key ctl-backslash-map "lr"  'xref-find-references)
