@@ -1,16 +1,9 @@
 ;; -*- lexical-binding: t -*-
 ;; Author: Youssef Hesham <m1cr0xf7>
 
-(setq package-enable-at-startup nil)
+;; avoid silly errors
+(set-default-coding-systems 'utf-8)
 
-;; Speed up startup
-(setq auto-mode-case-fold nil)
-
-;; Startup Performace
-;; The default is 800 kb. measured in bytes
-(setq gc-cons-threshold (* 50 1000 1000))
-;; increase the amount of data which emacs reads from the process
-(setq read-process-output-max (* 1024 1024)) ;; 1mb
 ;; change the user-emacs-directory to keep unwanted things out of ~/.emacs.d
 (setq user-emacs-directory (expand-file-name "~/.cache/emacs/")
       url-history-file (expand-file-name "url/history" user-emacs-directory))
@@ -28,12 +21,6 @@
 (setq auto-save-file-name-transforms
       `((".*" "~/.emacs.d/saves" t)))
 
-;; avoid silly errors
-(set-default-coding-systems 'utf-8)
-
-;; hide startup message
-(setq-default inhibit-splash-screen t
-	      inhibit-startup-message t)
 
 (setq indent-tabs-mode nil
       tab-width 4
@@ -70,15 +57,6 @@
 (setq display-time-format "%l:%M: %p %b %y"
       display-time-default-load-average nil)
 
-;; hide scrollbar, menubar and toolbar. highlight braces
-(tool-bar-mode 0)
-(menu-bar-mode 0)
-(scroll-bar-mode 0)
-(show-paren-mode 1)
-
-;; stop the annoying beep sound
-(setq ring-bell-function 'ignore)
-
 ;; Enable recursive minibuffers
 (setq enable-recursive-minibuffers t)
 
@@ -95,10 +73,6 @@
 (setq mouse-wheel-progressive-speed nil) ; don't accelerate scrolling
 (setq mouse-wheel-follow-mouse 't) ; scroll window under mouse
 (setq scroll-step 1) ;; keyboard scroll one line at a time
-
-;; maximize window by default
-(set-frame-parameter (selected-frame) 'fullscreen 'maximized)
-(add-to-list 'default-frame-alist '(fullscreen . maximized))
 
 ;; escape
 (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
@@ -256,25 +230,6 @@
 (unless (package-installed-p 'use-package)
   (package-install 'use-package))
 
-;;;;;;;;;;;;;;;;;;;;
-;; load theme
-;;;;;;;;;;;;;;;;;;;;
-
-;; ;; solarized colors are one of my favourite colorschemes
-;; (unless (package-installed-p 'solarized-theme)
-;;   (package-install 'solarized-theme))
-;; ;; another cool theme
-;; (unless (package-installed-p 'gruber-darker-theme)
-;;   (package-install 'gruber-darker-theme))
-
-;; use this theme in graphic mode and the other if running inside a term
-;; (if (display-graphic-p)
-;;	(progn
-;;	  ;; if graphic
-;;	  (load-theme 'solarized-dark t))
-;;   ;; else (inside terminal?)
-;;   (load-theme 'gruber-darker t))
-
 ;; add themes directory
 (add-to-list 'custom-theme-load-path "~/.emacs.d/themes/")
 ;; load the theme
@@ -431,7 +386,7 @@
 (add-hook 'prog-mode-hook
 	  (lambda ()
 	    (font-lock-add-keywords nil
-				    '(("\\<\\(FIXME\\|XXX\\|DEBUG\\|BUG\\|TODO\\|HACK\\|REFERENCE\\|WONTFIX\\|NOTE\\):" 1 font-lock-warning-face t)))))
+				    '(("\\<\\(FIXME\\|XXX\\|DEBUG\\|BUG\\|TODO\\|REFERENCE\\|WONTFIX\\|NOTE\\):" 1 font-lock-warning-face t)))))
 
 ;; ;; Whitespace style
 (setq whitespace-style '(face
