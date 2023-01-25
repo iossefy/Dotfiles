@@ -6,30 +6,38 @@
 
 ;; change the user-emacs-directory to keep unwanted things out of ~/.emacs.d
 (setq user-emacs-directory (expand-file-name "~/.cache/emacs/")
-      url-history-file (expand-file-name "url/history" user-emacs-directory))
+      url-history-file (expand-file-name "url/history" user-emacs-directory)
+      package-user-dir "~/.emacs.d/packages")
 
 (defvar user-cache-directory (concat user-emacs-directory "~/.cache/emacs"))
 
 ;; autosave
 (setq backup-by-copying t    ; don't clobber symlinks
-      backup-directory-alist '(("." . "~/.emacs.d/saves"))	  ; don't litter my fs tree
+      ;; don't litter my fs tree
+      backup-directory-alist '(("." . "~/.emacs.d/saves"))
       delete-old-versions t
       kept-new-versions 6
       kept-old-versions 2
       version-control t
       create-lockfiles nil)
+
 (setq auto-save-file-name-transforms
       `((".*" "~/.emacs.d/saves" t)))
 
 
 (setq indent-tabs-mode nil
       tab-width 4
-      c-basic-offset 4
       compilation-scroll-output t
       fill-column 80
       isearch-repeat-on-direction-change t
       isearch-wrap-pause 'no-ding)
 
+(setq c-default-style "bsd"
+      c-basic-offset 4)
+
+;; It lets you move point from window to window using Shift and the
+;; arrow keys. This is easier to type than ‘C-x o’.
+(windmove-default-keybindings)
 
 ;; this sets HTML tab to 4 spaces (2 spaces is nice, 4 is ugly)
 ;; (defvaralias 'sgml-basic-offset 'tab-width)
@@ -186,10 +194,9 @@
 (define-key ctl-z-map "z"   'suspend-frame)
 (define-key ctl-z-map "u"   'undo-redo)
 (define-key ctl-z-map "r"   'undo)
-(define-key ctl-z-map "ds"   'kill-symbol-at-point)
-(define-key ctl-z-map "dw"   'kill-word-at-point)
-(define-key ctl-z-map "dd"   'kill-whole-line)
-
+(define-key ctl-z-map "ds"  'kill-symbol-at-point)
+(define-key ctl-z-map "dw"  'kill-word-at-point)
+(global-set-key (kbd "C-z C-d") 'kill-whole-line)
 
 
 (global-unset-key "\C-\\")
@@ -208,7 +215,7 @@
 (define-key ctl-l-map "fr"  'fill-region)
 (define-key ctl-l-map "ee"  'async-shell-command)
 (define-key ctl-l-map "er"  'shell-command-on-region)
-(define-key ctl-l-map "m"   'mark-sexp)
+
 
 (define-key ctl-backslash-map "m" 'man)
 
@@ -274,10 +281,10 @@
 (define-key ctl-backslash-map "dr" 'dired-do-rename)
 
 (global-set-key (kbd "C-,") 'duplicate-line)
+
 ;; easier way to navigate
 (global-set-key (kbd "M-[") 'backward-paragraph)
 (global-set-key (kbd "M-]") 'forward-paragraph)
-
 
 (global-set-key (kbd "M-s s") 'isearch-forward)
 
@@ -334,11 +341,11 @@
   :defer t
   :commands (magit-status magit-get-current-branch))
 
-(define-key ctl-backslash-map "gs"   'magit-status)
-(define-key ctl-backslash-map "gd"   'magit-diff-unstaged)
-(define-key ctl-backslash-map "glc"  'magit-log-current)
-(define-key ctl-backslash-map "glf"  'magit-log-buffer-file)
-(define-key ctl-backslash-map "gb"   'magit-branch)
+(define-key ctl-backslash-map "gs"  'magit-status)
+(define-key ctl-backslash-map "gd"  'magit-diff-unstaged)
+(define-key ctl-backslash-map "glc" 'magit-log-current)
+(define-key ctl-backslash-map "glf" 'magit-log-buffer-file)
+(define-key ctl-backslash-map "gb"  'magit-branch)
 
 (use-package rust-mode :ensure t)
 (use-package go-mode :ensure t)
@@ -365,17 +372,19 @@
 (define-key ctl-backslash-map "ae"  'global-flycheck-mode)
 (define-key ctl-backslash-map "aE"  'list-flycheck-errors)
 
+
 (use-package company
   :ensure t
   :diminish
-  :init)
-(global-company-mode)
-(define-key ctl-z-map " "  'company-complete)
+  :init
+
+  (global-company-mode)
+  (define-key ctl-z-map "n" 'company-complete))
 
 
-(define-key ctl-backslash-map "ld"  'xref-find-definitions)
-(define-key ctl-backslash-map "lr"  'xref-find-references)
-(define-key ctl-backslash-map "ls"  'consult-imenu)
+(define-key ctl-backslash-map "ld" 'xref-find-definitions)
+(define-key ctl-backslash-map "lr" 'xref-find-references)
+(define-key ctl-backslash-map "ls" 'consult-imenu)
 
 ;; comments
 (define-key ctl-backslash-map "c " 'comment-line)
@@ -385,8 +394,7 @@
 ;; Highlight Codetags
 (add-hook 'prog-mode-hook
 	  (lambda ()
-	    (font-lock-add-keywords nil
-				    '(("\\<\\(FIXME\\|XXX\\|DEBUG\\|BUG\\|TODO\\|REFERENCE\\|WONTFIX\\|NOTE\\):" 1 font-lock-warning-face t)))))
+	    (font-lock-add-keywords nil '(("\\<\\(FIXME\\|XXX\\|DEBUG\\|BUG\\|TODO\\|REFERENCE\\|WONTFIX\\|NOTE\\):" 1 font-lock-warning-face t)))))
 
 ;; ;; Whitespace style
 (setq whitespace-style '(face
