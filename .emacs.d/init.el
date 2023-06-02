@@ -33,7 +33,17 @@
       isearch-wrap-pause 'no-ding)
 
 (setq c-default-style "bsd"
-      c-basic-offset 4)
+      ;; c-basic-offset 4
+)
+
+;; make scrolling less painful
+;; (setq scroll-margin 4
+;;   scroll-conservatively 0
+;;   scroll-up-aggressively 0.01
+;;   scroll-down-aggressively 0.01)
+;; (setq-default scroll-up-aggressively 0.01
+;;   scroll-down-aggressively 0.01)
+
 
 ;; It lets you move point from window to window using Shift and the
 ;; arrow keys. This is easier to type than ‘C-x o’.
@@ -84,6 +94,9 @@
 
 ;; escape
 (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
+;; hippie expand
+;; (global-set-key [remap dabbrev-expand] 'hippie-expand)
+
 
 ;; editor
 (defun move-region-internal (arg)
@@ -157,6 +170,14 @@
   "Kill all other buffers. except the current one."
   (interactive)
   (mapc 'kill-buffer (delq (current-buffer) (buffer-list))))
+(defun select-text-in-quote ()
+  (interactive)
+  (let ( $skipChars $p1 )
+    (setq $skipChars "^\"`<>(){}[]")
+    (skip-chars-backward $skipChars)
+    (setq $p1 (point))
+    (skip-chars-forward $skipChars)
+    (set-mark $p1)))
 
 
 ;; go to the beginning and the end of current buffer
@@ -194,6 +215,8 @@
 (define-key ctl-z-map "z"   'suspend-frame)
 (define-key ctl-z-map "u"   'undo-redo)
 (define-key ctl-z-map "r"   'undo)
+(define-key ctl-z-map "m"   'mark-sexp)
+
 (define-key ctl-z-map "ds"  'kill-symbol-at-point)
 (define-key ctl-z-map "dw"  'kill-word-at-point)
 (global-set-key (kbd "C-z C-d") 'kill-whole-line)
@@ -215,6 +238,7 @@
 (define-key ctl-l-map "fr"  'fill-region)
 (define-key ctl-l-map "ee"  'async-shell-command)
 (define-key ctl-l-map "er"  'shell-command-on-region)
+(define-key ctl-l-map "sq"  'select-text-in-quote)
 
 
 (define-key ctl-backslash-map "m" 'man)
@@ -424,3 +448,4 @@
 (setq comment-auto-fill-only-comments t)
 
 (auto-fill-mode t)
+
