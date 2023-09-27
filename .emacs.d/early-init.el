@@ -1,6 +1,7 @@
 ;; -*- lexical-binding: t; -*-
 
-(setq auto-mode-case-fold nil)
+(setq auto-mode-case-fold nil
+      native-comp-async-report-warnings-errors 'silent)
 
 (defconst emacs-start-time (current-time))
 
@@ -8,14 +9,26 @@
 (setq-default inhibit-splash-screen t
 	      inhibit-startup-message t)
 
+;; auto-fill by default
+(setq-default fill-column 80
+	      auto-fill-function 'do-auto-fill)
+
 
 ;; If an `.el' file is newer than its corresponding `.elc', load the `.el'.
 (setq load-prefer-newer t)
 
-;; Set Garbage Collection threshold to 1GB during startup. `gcmh' will clean
-;; things up later.
-(setq gc-cons-threshold 1073741824
+;; Set Garbage Collection threshold to 1GB during startup.
+(setq gc-cons-threshold most-positive-fixnum
       gc-cons-percentage 0.6)
+
+;; Prevent unwanted runtime compilation for gccemacs (native-comp) users;
+;; packages are compiled ahead-of-time when they are installed and site files
+;; are compiled when gccemacs is installed.
+(setq native-comp-deferred-compilation nil ;; obsolete since 29.1
+      native-comp-jit-compilation nil)
+
+;; increase the amount of data which emacs reads from the process
+(setq read-process-output-max (* 1024 1024)) ;; 1mb
 
 ;; No scrollbar by default.
 (when (fboundp 'scroll-bar-mode)
@@ -43,6 +56,9 @@
 (push '(menu-bar-lines . 0) default-frame-alist)
 (push '(tool-bar-lines . 0) default-frame-alist)
 (push '(vertical-scroll-bars) default-frame-alist)
+(when (featurep 'ns)
+  (push '(ns-transparent-titlebar . t) default-frame-alist))
+;; (setq-default mode-line-format nil)
 
 ;; larger than the system default.
 (setq frame-inhibit-implied-resize t
@@ -55,10 +71,14 @@
 (setq file-name-handler-alist nil)
 (add-hook 'emacs-startup-hook
           (lambda ()
-            (setq file-name-handler-alist file-name-handler-alist-old)))
+            (setq file-name-handler-alist file-name-handler-alist-old
+		  ;; garbage collection stuff
+		  gc-cons-threshold 16777216 ; 16mb
+		  gc-cons-percentage 0.1)))
 
 
-;; Disable `package' in favor of `straight'.
+;; ;; Disable `package' in favor of `straight'.
 (setq package-enable-at-startup nil)
+
 
 (provide 'early-init)

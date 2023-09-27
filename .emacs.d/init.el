@@ -4,6 +4,8 @@
 ;; avoid silly errors
 (set-default-coding-systems 'utf-8)
 
+(setq-default major-mode 'text-mode)
+
 ;; change the user-emacs-directory to keep unwanted things out of ~/.emacs.d
 (setq user-emacs-directory (expand-file-name "~/.cache/emacs/")
       url-history-file (expand-file-name "url/history" user-emacs-directory)
@@ -14,12 +16,14 @@
 ;; autosave
 (setq backup-by-copying t    ; don't clobber symlinks
       ;; don't litter my fs tree
-      backup-directory-alist '(("." . "~/.emacs.d/saves"))
+      ;; backup-directory-alist '(("." . "~/.emacs.d/saves"))
+      make-backup-files nil
       delete-old-versions t
       kept-new-versions 6
       kept-old-versions 2
       version-control t
-      create-lockfiles nil)
+      create-lockfiles nil
+      package-native-compile t)
 
 (setq auto-save-file-name-transforms
       `((".*" "~/.emacs.d/saves" t)))
@@ -190,11 +194,11 @@
 ;; on your system. change the font or delete the following
 ;; region if you dont want to deal with it
 (set-face-attribute 'default nil
-		    :family "fira code"
+		    :family "Fira Code"
 		    :weight 'regular
-		    :height 100)
+		    :height 110)
 
-(set-fontset-font t 'arabic "Noto Sans Arabic UI")
+(set-fontset-font t 'arabic "Noto Sans Arabic")
 
 
 ;; keybindings emacs way
@@ -270,6 +274,8 @@
 
 
 (use-package diminish :ensure t)
+(use-package markdown-mode :ensure t)
+(use-package js2-mode :ensure t)
 
 (use-package yasnippet
   :ensure t
@@ -360,6 +366,12 @@
 (define-key ctl-backslash-map "tw"  'whitespace-mode)
 (define-key ctl-backslash-map "tt"  'consult-theme)
 
+(use-package diff-hl
+  :ensure t
+  :init
+  :defer
+  (global-diff-hl-mode))
+
 (use-package magit
   :ensure t
   :defer t
@@ -374,20 +386,6 @@
 (use-package rust-mode :ensure t)
 (use-package go-mode :ensure t)
 
-;; (use-package lsp-mode
-;;   :ensure t
-;;   :defer
-;;   ;; :init
-;;   ;; set prefix for lsp-command-keymap (few alternatives - "C-l", "C-c l")
-;;   (setq lsp-keymap-prefix "C-c l")
-;;   :hook (;; replace XXX-mode with concrete major-mode(e. g. python-mode)
-;;		 ;; (rust-mode . lsp)
-;;		 ;; if you want which-key integration
-;;		 (lsp-mode . lsp-enable-which-key-integration))
-;;   :commands (lsp lsp-deferred)
-;;   :config
-;;   (setq lsp-modeline-code-actions-segments '(count name)))
-
 (use-package flycheck
   :ensure t
   :defer t
@@ -395,7 +393,6 @@
 
 (define-key ctl-backslash-map "ae"  'global-flycheck-mode)
 (define-key ctl-backslash-map "aE"  'list-flycheck-errors)
-
 
 (use-package company
   :ensure t
@@ -448,4 +445,3 @@
 (setq comment-auto-fill-only-comments t)
 
 (auto-fill-mode t)
-
