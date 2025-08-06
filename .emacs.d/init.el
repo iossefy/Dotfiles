@@ -4,19 +4,17 @@
 ;; avoid silly errors
 (set-default-coding-systems 'utf-8)
 
-(setq-default major-mode 'text-mode)
-
 ;; change the user-emacs-directory to keep unwanted things out of ~/.emacs.d
-(setq user-emacs-directory (expand-file-name "~/.cache/emacs/")
-      url-history-file (expand-file-name "url/history" user-emacs-directory)
+(defvar user-cache-directory (expand-file-name "~/.cache/emacs/"))
+(setq user-emacs-directory (expand-file-name "~/.emacs.d/")
+      url-history-file (concat user-cache-directory "url/history")
       package-user-dir "~/.emacs.d/packages")
-
-(defvar user-cache-directory (concat user-emacs-directory "~/.cache/emacs"))
 
 ;; autosave
 (setq backup-by-copying t    ; don't clobber symlinks
       ;; don't litter my fs tree
       ;; backup-directory-alist '(("." . "~/.emacs.d/saves"))
+      auto-save-default nil
       make-backup-files nil
       delete-old-versions t
       kept-new-versions 6
@@ -36,9 +34,8 @@
       isearch-repeat-on-direction-change t
       isearch-wrap-pause 'no-ding)
 
-(setq c-default-style "bsd"
-      ;; c-basic-offset 4
-)
+(setq comment-auto-fill-only-comments t)
+(auto-fill-mode t)
 
 ;; make scrolling less painful
 ;; (setq scroll-margin 4
@@ -58,22 +55,19 @@
 
 ;; Enable `relative` line numbers
 (column-number-mode)
-(global-display-line-numbers-mode)
-;; (setq display-line-numbers-type 'relative)
+
 ;; Use relative numbers only in GUI
 ;; relative numbers cause unpleasant flickering in terminal emacs.
 (if (display-graphic-p)
     (progn
       (setq display-line-numbers-type 'relative)))
 
-;; disable line numbers in these modes
-(dolist (mode '(org-mode-hook
-		term-mode-hook
-		Man-mode-hook
-		woman-mode-hook
-		shell-mode-hook
-		eshell-mode-hook))
-  (add-hook mode (lambda () (display-line-numbers-mode 0))))
+
+(add-hook 'prog-mode-hook (lambda() (display-line-numbers-mode 1)))
+(add-hook 'text-mode-hook (lambda() (display-line-numbers-mode 1)))
+
+;; Emacs! act normal wtf?
+(delete-selection-mode t)
 
 ;; custom modeline (time-format)
 (setq display-time-format "%l:%M: %p %b %y"
@@ -91,10 +85,17 @@
       #'command-completion-default-include-p)
 
 ;; mouse config
-(setq mouse-wheel-scroll-amount '(1 ((shift) . 1))) ; one line at a time
-(setq mouse-wheel-progressive-speed nil) ; don't accelerate scrolling
-(setq mouse-wheel-follow-mouse 't) ; scroll window under mouse
-(setq scroll-step 1) ;; keyboard scroll one line at a time
+(setq redisplay-dont-pause t
+  scroll-margin 1
+  scroll-step 1 ;; keyboard scroll one line at a time
+  mouse-wheel-scroll-amount '(1 ((shift) . 1)) ; one line at a time
+  mouse-wheel-progressive-speed nil	       ; don't accelerate scrolling
+  mouse-wheel-follow-mouse 't		       ; scroll window under mouse
+  ;; scroll-preserve-screen-position 1
+  scroll-conservatively 10000)
+
+;; (setq jit-lock-defer-time 0)
+;; (setq fast-but-imprecise-scrolling t)
 
 ;; escape
 (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
@@ -182,11 +183,49 @@
     (setq $p1 (point))
     (skip-chars-forward $skipChars)
     (set-mark $p1)))
+(defun load-if-exists (f)
+  "Load a file if exists"
+  (if (file-exists-p (expand-file-name f))
+      (load-file f)))
+(defun generate-tags (extension)
+  "Generate a TAGS file for all files with the given EXTENSION."
+  (interactive "sEnter file extension (without dot): ")
+  (let ((command (format "find . -name \"*.%s\" -print | etags -" extension)))
+    (shell-command command)
+    (message "TAGS file generated for *.%s files" extension)))
+(defun create-tags (dir-name)
+  "Create tags file."
+  (interactive "DDirectory: ")
+  (eshell-command
+   (format "find %s -type f -name \"*.[ch]\" | etags -" dir-name)))
+(defadvice find-tag (around refresh-etags activate)
+  "Rerun etags and reload tags if tag not found and redo find-tag.
+   If buffer is modified, ask about save before running etags."
+  (let ((extension (file-name-extension (buffer-file-name))))
+    (condition-case err
+	ad-do-it
+      (error (and (buffer-modified-p)
+		  (not (ding))
+		  (y-or-n-p "Buffer is modified, save it? ")
+		  (save-buffer))
+             (er-refresh-etags extension)
+             ad-do-it))))
+(defun er-refresh-etags (&optional extension)
+  "Run etags on all peer files in current dir and reload them silently."
+  (interactive)
+  (shell-command (format "etags *.%s" (or extension "el")))
+  (let ((tags-revert-without-query t))  ; don't query, revert silently
+    (visit-tags-table default-directory nil)))
 
+(load-if-exists (expand-file-name (concat user-emacs-directory "secrets.el")))
 
 ;; go to the beginning and the end of current buffer
 (global-set-key (kbd "C-{") 'beginning-of-buffer)
 (global-set-key (kbd "C-}") 'end-of-buffer)
+
+;; temporary for my shitty broken keyboard
+(global-set-key (kbd "<kp-delete>") (lambda () (interactive) (insert ".")))
+(global-set-key (kbd "<kp-begin>") 'next-line)
 
 
 ;; set font
@@ -199,7 +238,6 @@
 		    :height 110)
 
 (set-fontset-font t 'arabic "Noto Sans Arabic")
-
 
 ;; keybindings emacs way
 (global-unset-key "\C-l")
@@ -253,7 +291,8 @@
 (setq package-archives '(("melpa" . "https://melpa.org/packages/")
 			 ("melpa-stable" . "https://stable.melpa.org/packages/")
 			 ("org" . "https://orgmode.org/elpa/")
-			 ("elpa" . "https://elpa.gnu.org/packages/")))
+			 ("elpa" . "https://elpa.gnu.org/packages/")
+			 ("nongnu" . "https://elpa.nongnu.org/nongnu/")))
 
 (package-initialize)
 (unless package-archive-contents
@@ -270,16 +309,52 @@
 ;; load the theme
 ;; (load-theme 'less t)
 ;; (load-theme 'modus-vivendi t)
+;; (load-theme 'leyl t)
+
+;; ensure you have doom-themes package
+;; (use-package doom-themes :ensure t)
 (load-theme 'leyl t)
 
-
 (use-package diminish :ensure t)
+
+
+;; Languages
 (use-package markdown-mode :ensure t)
 (use-package js2-mode :ensure t)
+(use-package lua-mode :ensure t)
+(use-package rust-mode :ensure t)
+(use-package go-mode :ensure t)
+(use-package dockerfile-mode :ensure t)
+
+
+(setq c-default-style "bsd")
+
+(use-package c-ts-mode
+  :ensure nil
+  :init
+  (add-hook 'c-ts-mode-hook #'hide-ifdef-mode)
+  (add-hook 'c-ts-mode-hook
+            (lambda ()
+              (setq-local c-ts-mode-indent-style 'bsd)
+              (setq-local c-ts-mode-indent-offset 4))))
+
+
+
+(use-package dumb-jump
+  :ensure t
+  :config
+  (add-hook 'xref-backend-functions #'dumb-jump-xref-activate)
+  (setq xref-show-definitions-function #'xref-show-definitions-completing-read)
+  (setq dumb-jump-prefer-searcher 'ag)
+
+  :bind (("M-g o" . dumb-jump-go-other-window)
+	 ("M-g j" . dumb-jump-go)
+	 ("M-g b" . dumb-jump-back)))
 
 (use-package yasnippet
   :ensure t
   :diminish t
+  ;; :defer t
   :config
   (setq yas-snippet-dirs '("~/.emacs.d/snippets"))  ;; personal snippets
   (yas-reload-all)
@@ -303,6 +378,10 @@
   (global-undo-tree-mode 1)
   (setq undo-tree-history-directory-alist '(("." . "~/.emacs.d/undo"))))
 
+(use-package expand-region
+  :ensure t
+  :bind ("C-=" . er/expand-region))
+
 (define-key ctl-backslash-map "dl" 'dired-find-file)
 (define-key ctl-backslash-map "dh" 'dired-up-directory)
 (define-key ctl-backslash-map "dd" 'dired-do-delete)
@@ -316,7 +395,21 @@
 (global-set-key (kbd "M-[") 'backward-paragraph)
 (global-set-key (kbd "M-]") 'forward-paragraph)
 
+;; emacs isearch stuff
 (global-set-key (kbd "M-s s") 'isearch-forward)
+(global-set-key (kbd "M-s r") 'isearch-query-replace)
+(global-set-key (kbd "M-s R") 'isearch-query-replace-regexp)
+
+
+;; configure modeline
+(use-package moody
+  :config
+  (moody-replace-mode-line-front-space)
+  (moody-replace-mode-line-buffer-identification)
+  (moody-replace-vc-mode)
+  (setq moody-mode-line-height 18)
+  (set-face-attribute 'mode-line nil :box nil)
+  (set-face-attribute 'mode-line-inactive nil :box nil))
 
 ;; Example configuration for Consult
 (use-package consult
@@ -368,8 +461,8 @@
 
 (use-package diff-hl
   :ensure t
-  :init
   :defer
+  :init
   (global-diff-hl-mode))
 
 (use-package magit
@@ -383,9 +476,6 @@
 (define-key ctl-backslash-map "glf" 'magit-log-buffer-file)
 (define-key ctl-backslash-map "gb"  'magit-branch)
 
-(use-package rust-mode :ensure t)
-(use-package go-mode :ensure t)
-
 (use-package flycheck
   :ensure t
   :defer t
@@ -393,6 +483,13 @@
 
 (define-key ctl-backslash-map "ae"  'global-flycheck-mode)
 (define-key ctl-backslash-map "aE"  'list-flycheck-errors)
+
+
+
+(use-package marginalia
+  :ensure t
+  :init
+  (marginalia-mode))
 
 (use-package company
   :ensure t
@@ -402,6 +499,59 @@
   (global-company-mode)
   (define-key ctl-z-map "n" 'company-complete))
 
+(use-package gptel
+  :ensure t
+  :defer
+  :init
+
+  (setq gptel-backend (gptel-make-gemini "Gemini"
+                   :key (my-auth 'gemini-key)
+                   :stream t))
+
+  (gptel-make-ollama "Ollama"             ;Any name of your choosing
+    :host "localhost:11434"               ;Where it's running
+    :stream t                             ;Stream responses
+    :models '(gemma3:1b qwen2.5:0.5b deepseek-r1:1.5b))          ;List of models
+
+  (define-key ctl-backslash-map (kbd "RET")  'gptel-send))
+
+
+(use-package pyvenv :ensure t)
+
+(use-package editorconfig
+  :ensure t
+  :config
+  (editorconfig-mode 1))
+
+(use-package parrot
+  :ensure t
+  :defer
+  :config
+  (setq parrot-rotate-dict
+	'(
+          (:rot ("yes" "no") :caps t :upcase t)
+          (:rot ("on" "off") :caps t :upcase t)
+          (:rot ("get" "set") :caps t :upcase t)
+
+          (:rot ("true" "false") :caps t :upcase t)
+          (:rot ("&&" "||"))
+          (:rot ("==" "!="))
+	  (:rot ("&" "|"))
+          (:rot (">" "<" "=" ">=" "<="))
+
+          (:rot ("." "->"))
+          (:rot ("let" "const" "var"))
+          (:rot ("if" "else" "else if" "elif"))
+          (:rot ("ifdef" "ifndef"))
+
+          (:rot ("int8_t" "int16_t" "int32_t" "int64_t"))
+          (:rot ("uint8_t" "uint16_t" "uint32_t" "uint64_t"))
+
+	  (:rot ("1" "2" "3" "4" "5" "6" "7" "8" "9" "10"))
+          (:rot ("1st" "2nd" "3rd" "4th" "5th" "6th" "7th" "8th" "9th" "10th"))))
+
+  (define-key ctl-l-map "p" 'parrot-rotate-next-word-at-point)
+  (define-key ctl-l-map "n" 'parrot-rotate-prev-word-at-point))
 
 (define-key ctl-backslash-map "ld" 'xref-find-definitions)
 (define-key ctl-backslash-map "lr" 'xref-find-references)
@@ -412,10 +562,81 @@
 (define-key ctl-backslash-map "cb" 'comment-box)
 (define-key ctl-backslash-map "ca" 'comment-dwim)
 
-;; Highlight Codetags
-(add-hook 'prog-mode-hook
-	  (lambda ()
-	    (font-lock-add-keywords nil '(("\\<\\(FIXME\\|XXX\\|DEBUG\\|BUG\\|TODO\\|REFERENCE\\|WONTFIX\\|NOTE\\):" 1 font-lock-warning-face t)))))
+
+;; Highlight "#if 0" as comments
+(use-package hideif
+  :ensure nil
+  :hook ((c-mode c++-mode c-ts-mode) . hide-ifdef-mode)
+  :config
+  (when (eq system-type 'gnu/linux)
+    (add-to-list 'hide-ifdef-env '(__linux__ . 1))
+    (add-to-list 'hide-ifdef-env '(__GNUC__ . 11)))
+  (when (eq system-type 'darwin)
+    (add-to-list 'hide-ifdef-env '(__APPLE__ . 1))
+    (add-to-list 'hide-ifdef-env '(__clang__ . 1))
+    (add-to-list 'hide-ifdef-env '(__llvm__ . 1)))
+  :custom
+  ;; Use hide-ifdefs/show-ifdefs manually.
+  (hide-ifdef-initially nil)
+  (hide-ifdef-shadow t))
+
+
+;;; EMACS-SOLO-HIGHLIGHT-KEYWORDS-MODE
+;;
+;;  Highlights a list of words like TODO, FIXME...
+;;  Code borrowed from `alternateved'
+;;
+(use-package emacs-solo-highlight-keywords-mode
+  :ensure nil
+  :no-require t
+  :defer t
+  :init
+  (defcustom +highlight-keywords-faces
+    '(("TODO" . error)
+      ("FIXME" . error)
+      ("BUG" . error)
+      ("HACK" . warning)
+      ("WONTFIX" . warning)
+      ("NOTE" . compilation-info)
+      ("HERE" . compilation-info)
+      ("REFERENCE" . compilation-info))
+    "Alist of keywords to highlight and their face."
+    :group '+highlight-keywords
+    :type '(alist :key-type (string :tag "Keyword")
+                  :value-type (symbol :tag "Face"))
+    :set (lambda (sym val)
+           (dolist (face (mapcar #'cdr val))
+             (unless (facep face)
+               (error "Invalid face: %s" face)))
+           (set-default sym val)))
+
+  (defvar +highlight-keywords--keywords
+    (when +highlight-keywords-faces
+      (let ((keywords (mapcar #'car +highlight-keywords-faces)))
+        `((,(regexp-opt keywords 'words)
+           (0 (when (nth 8 (syntax-ppss))
+                (cdr (assoc (match-string 0) +highlight-keywords-faces)))
+              prepend)))))
+    "Keywords and corresponding faces for `emacs-solo/highlight-keywords-mode'.")
+
+  (defun emacs-solo/highlight-keywords-mode-on ()
+    (font-lock-add-keywords nil +highlight-keywords--keywords t)
+    (font-lock-flush))
+
+  (defun emacs-solo/highlight-keywords-mode-off ()
+    (font-lock-remove-keywords nil +highlight-keywords--keywords)
+    (font-lock-flush))
+
+  (define-minor-mode emacs-solo/highlight-keywords-mode
+    "Highlight TODO and similar keywords in comments and strings."
+    :lighter " +HL"
+    :group '+highlight-keywords
+    (if emacs-solo/highlight-keywords-mode
+        (emacs-solo/highlight-keywords-mode-on)
+      (emacs-solo/highlight-keywords-mode-off)))
+
+  :hook
+  (prog-mode . (lambda () (run-at-time "1 sec" nil #'emacs-solo/highlight-keywords-mode-on))))
 
 ;; ;; Whitespace style
 (setq whitespace-style '(face
@@ -444,4 +665,5 @@
 
 (setq comment-auto-fill-only-comments t)
 
-(auto-fill-mode t)
+(auto-fill-mode)
+
