@@ -17,9 +17,8 @@ bindkey '^ ' visual-mode
 bindkey '^W' kill-region
 bindkey '^Y' yank
 bindkey '^_' undo
-bindkey '^f' forward-word
-bindkey '^b' backward-word
 
+bindkey -s '^N' 'ncd\n'
 
 zstyle ':completion:*' menu select
 typeset -g -A key
@@ -29,6 +28,8 @@ setopt extended_history       # record timestamp of command in HISTFILE
 setopt -o sharehistory
 setopt INC_APPEND_HISTORY
 setopt interactivecomments
+
+stty stop undef		# Disable ctrl-s to freeze terminal.
 
 zstyle ':completion::complete:*' use-cache 1
 
@@ -55,6 +56,24 @@ then
     }
 fi
 
+# use nnn to cd through directories
+ncd ()
+{
+    [ "${NNNLVL:-0}" -eq 0 ] || {
+        echo "nnn is already running"
+        return
+    }
+
+    export NNN_TMPFILE="${XDG_CONFIG_HOME:-$HOME/.config}/nnn/.lastd"
+
+    command nnn "$@"
+
+    [ ! -f "$NNN_TMPFILE" ] || {
+        . "$NNN_TMPFILE"
+        rm -f -- "$NNN_TMPFILE" > /dev/null
+    }
+}
+
 # aliases
 source $HOME/.scripts/zsh/aliases.sh
 
@@ -80,6 +99,7 @@ PS2="%{$fg[green]%}\\>%{$reset_color%} "
 [ "$HISTSIZE" -lt 50000 ] && HISTSIZE=50000
 [ "$SAVEHIST" -lt 10000 ] && SAVEHIST=10000
 
-
 # exports
 source $HOME/.scripts/zsh/exports.sh
+
+export NNN_TMPFILE=/tmp/.lastd
