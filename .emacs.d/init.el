@@ -313,7 +313,7 @@
 
 ;; ensure you have doom-themes package
 ;; (use-package doom-themes :ensure t)
-(load-theme 'leyl t)
+(load-theme 'doom-flatwhite t)
 
 (use-package diminish :ensure t)
 
@@ -342,9 +342,9 @@
 
 (use-package dumb-jump
   :ensure t
+  :hook (xref-backend-functions . dumb-jump-xref-activate)
   :config
-  (add-hook 'xref-backend-functions #'dumb-jump-xref-activate)
-  (setq xref-show-definitions-function #'xref-show-definitions-completing-read)
+  ;; (setq xref-show-definitions-function #'xref-show-definitions-completing-read)
   (setq dumb-jump-prefer-searcher 'ag)
 
   :bind (("M-g o" . dumb-jump-go-other-window)
@@ -381,6 +381,18 @@
 (use-package expand-region
   :ensure t
   :bind ("C-=" . er/expand-region))
+
+(use-package multiple-cursors
+  :ensure t
+  :diminish
+  :defer t
+  :init
+
+  (global-set-key (kbd "C-S-c C-S-c") 'mc/edit-lines)
+
+  (global-set-key (kbd "C->") 'mc/mark-next-like-this)
+  (global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
+  (global-set-key (kbd "C-c C-<") 'mc/mark-all-like-this))
 
 (define-key ctl-backslash-map "dl" 'dired-find-file)
 (define-key ctl-backslash-map "dh" 'dired-up-directory)
@@ -667,3 +679,25 @@
 
 (auto-fill-mode)
 
+;; TRAMP
+(setq remote-file-name-inhibit-locks t
+      tramp-use-scp-direct-remote-copying t
+      remote-file-name-inhibit-auto-save-visited t)
+
+(setq tramp-copy-size-limit (* 1024 1024) ;; 1MB
+      tramp-verbose 2)
+
+
+(connection-local-set-profile-variables
+ 'remote-direct-async-process
+ '((tramp-direct-async-process . t)))
+
+(connection-local-set-profiles
+ '(:application tramp :protocol "scp")
+ 'remote-direct-async-process)
+
+(setq magit-tramp-pipe-stty-settings 'pty)
+
+(with-eval-after-load 'tramp
+  (with-eval-after-load 'compile
+    (remove-hook 'compilation-mode-hook #'tramp-compile-disable-ssh-controlmaster-options)))
